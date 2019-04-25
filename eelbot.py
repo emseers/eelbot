@@ -1,0 +1,6 @@
+'''
+    EelBot
+'''
+
+def poll():
+    pass
