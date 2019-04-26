@@ -4,12 +4,17 @@
 
 import argparse
 import configparser
+import time
 
 CONFIG = {}
 
 
 def poll():
-    pass
+    run = True
+
+    while run:
+        print("Polled")
+        time.sleep(CONFIG["POLL_TIME"])
 
 
 parser = argparse.ArgumentParser(description="Discord bot, listener server")
