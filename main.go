@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -17,7 +18,7 @@ import (
 var token string
 var buffer = make([][]byte, 0)
 
-var timeout = 30 * time.Second
+var timeout = 10 * time.Second
 var flagYl bool
 var flagQm bool
 var flagMg bool
@@ -45,7 +46,7 @@ func main() {
 	flagMg = true
 	flagEg = true
 
-	// Create a new Discord session using the provided bot token.
+	// Create a new Discord session using the provided bot token
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
 		fmt.Println("Error creating Discord session: ", err)
@@ -53,36 +54,36 @@ func main() {
 	}
 	defer dg.Close()
 
-	// Register ready as a callback for the ready events.
+	// Register ready as a callback for the ready events
 	dg.AddHandler(ready)
 
-	// Register messageCreate as a callback for the messageCreate events.
+	// Register messageCreate as a callback for the messageCreate events
 	dg.AddHandler(messageCreate)
 
-	// Register guildCreate as a callback for the guildCreate events.
+	// Register guildCreate as a callback for the guildCreate events
 	dg.AddHandler(guildCreate)
 
-	// Open the websocket and begin listening.
+	// Open the websocket and begin listening
 	err = dg.Open()
 	if err != nil {
 		fmt.Println("Error opening Discord session: ", err)
+		return
 	}
 
-	// Wait here until CTRL-C or other term signal is received.
+	// Wait here until CTRL-C or other term signal is received
 	fmt.Println("Eelbot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
 }
 
-// This function will be called (due to AddHandler above) when the bot receives the "ready" event from Discord.
+// This function will be called (due to AddHandler above) when the bot receives the "ready" event from Discord
 func ready(s *discordgo.Session, event *discordgo.Ready) {
-
 	// Set the playing status.
-	s.UpdateStatus(0, "Cyberpunk 2077")
+	s.UpdateStatus(0, "")
 }
 
-// This function will be called (due to AddHandler above) every time a new message is created that the bot has access to.
+// This function will be called (due to AddHandler above) every time a new message is created that the bot has access to
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Ignore all messages created by the bot itself
 	if m.Author.ID == s.State.User.ID {
@@ -91,7 +92,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Remove emoji and other random characters and check if entire message is uppercase
 	content := msg.ToValidAscii(m.Content)
-	if content == strings.ToUpper(content) && len(content) >= 5 {
+	alphaContent := msg.ToAlphabetOnly(content)
+	if alphaContent == strings.ToUpper(alphaContent) && len(alphaContent) >= 5 {
 		if flagYl {
 			s.ChannelMessageSend(m.ChannelID, msg.YellResponse())
 			flagYl = false
@@ -118,12 +120,21 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 						time.Sleep(3 * time.Second)
 						s.ChannelMessageSend(m.ChannelID, partTwo)
 					}
+				} else if _, err := strconv.Atoi(cmdSlices[1]); err == nil {
+					partOne, partTwo, err := msg.JokeSpecific(cmdSlices[1])
+					if err != nil {
+						s.ChannelMessageSend(m.ChannelID, err.Error())
+					} else {
+						s.ChannelMessageSend(m.ChannelID, partOne)
+						time.Sleep(3 * time.Second)
+						s.ChannelMessageSend(m.ChannelID, partTwo)
+					}
 				}
 			}
 		case "eel":
 			if len(cmdSlices) > 1 {
 				if cmdSlices[1] == "me" {
-					s.ChannelMessageSend(m.ChannelID, "NotImplementedError")
+					s.ChannelFileSend(m.ChannelID, "eel.png", msg.EelPic())
 				}
 			}
 		case "flip":
@@ -137,6 +148,17 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				"/ping\n")
 		case "ping":
 			s.ChannelMessageSend(m.ChannelID, "Pong")
+		case "play":
+			if len(m.Content) > 6 {
+				s.UpdateStatus(0, m.Content[6:])
+			} else {
+				s.UpdateStatus(0, "")
+			}
+		case "say":
+			if len(m.Content) > 5 {
+				s.ChannelMessageDelete(m.ChannelID, m.ID)
+				s.ChannelMessageSend(m.ChannelID, m.Content[5:])
+			}
 		}
 	} else if strings.HasPrefix(content, "?") {
 		if flagQm {
@@ -161,7 +183,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 // This function will be called (due to AddHandler above) every time a new guild is joined.
 func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
-
 	if event.Guild.Unavailable {
 		return
 	}

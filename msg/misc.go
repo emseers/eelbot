@@ -19,6 +19,12 @@ func ToValidAscii(s string) string {
 	return t
 }
 
+func ToAlphabetOnly(s string) string {
+	re := regexp.MustCompile("[^a-zA-Z]+")
+	t := re.ReplaceAllLiteralString(s, "")
+	return t
+}
+
 func YellResponse() string {
 	responses := [5]string{
 		"Stop yelling",

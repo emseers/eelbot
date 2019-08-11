@@ -10,8 +10,8 @@ func IsMorningGreet(msg string) bool {
 		"mornin",
 		"g'mornin",
 		"gmornin",
+		"gud mornin",
 		"hello",
-		"hi",
 	}
 
 	for _, greeting := range greetings {
