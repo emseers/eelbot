@@ -19,6 +19,7 @@ Run the bot with the token:
 
 ## Docker
 
-Run the bot in an alpine image using the run script:
+Build and run the bot in an alpine image with the provided Dockerfile:
 
-    ./run.sh <EELBOT_TOKEN> -b
+    docker build -t eelbot:v1 .
+    docker run --name eelbot --rm -e EELBOT_TOKEN=<EELBOT_TOKEN> -it eelbot:v1
