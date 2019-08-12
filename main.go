@@ -159,6 +159,19 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				s.ChannelMessageDelete(m.ChannelID, m.ID)
 				s.ChannelMessageSend(m.ChannelID, m.Content[5:])
 			}
+		case "taunt":
+			if len(cmdSlices) > 1 {
+				taunt, err := strconv.Atoi(cmdSlices[1])
+				taunt--
+				if err == nil {
+					reader, fileName, err := msg.PlayTaunt(taunt)
+					if err == nil {
+						s.ChannelFileSend(m.ChannelID, fileName, reader)
+					} else {
+						s.ChannelMessageSend(m.ChannelID, err.Error())
+					}
+				}
+			}
 		}
 	} else if strings.HasPrefix(content, "?") {
 		if flagQm {
