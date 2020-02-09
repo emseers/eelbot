@@ -6,8 +6,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var sqliteDBString = "EelbotDB.db"
-
 func Joke() (string, string, error) {
 	db, err := sql.Open("sqlite3", sqliteDBString)
 	if err != nil {

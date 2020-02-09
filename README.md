@@ -2,12 +2,11 @@
 
 ## Build
 
-Install [golang](https://golang.org/) 1.12 or later. Get dependencies with:
+Install [golang](https://golang.org/) 1.13 or later. Clone the project:
 
-    go get github.com/bwmarrin/discordgo
-    go get github.com/mattn/go-sqlite3
+    go get github.com/Emseers/Eelbot
 
-Clone project to `$GOPATH/src/eelbot`. Build with:
+Build with:
 
     go build
 

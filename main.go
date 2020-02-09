@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"eelbot/msg"
+	"github.com/Emseers/Eelbot/msg"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -23,6 +23,8 @@ var flagYl bool
 var flagQm bool
 var flagMg bool
 var flagEg bool
+
+var multiLineJokeDelay = 3 * time.Second
 
 func setFlag(flag *bool) {
 	time.Sleep(timeout)
@@ -117,7 +119,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 						s.ChannelMessageSend(m.ChannelID, err.Error())
 					} else {
 						s.ChannelMessageSend(m.ChannelID, partOne)
-						time.Sleep(3 * time.Second)
+						time.Sleep(multiLineJokeDelay)
 						s.ChannelMessageSend(m.ChannelID, partTwo)
 					}
 				} else if _, err := strconv.Atoi(cmdSlices[1]); err == nil {
@@ -126,26 +128,40 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 						s.ChannelMessageSend(m.ChannelID, err.Error())
 					} else {
 						s.ChannelMessageSend(m.ChannelID, partOne)
-						time.Sleep(3 * time.Second)
+						time.Sleep(multiLineJokeDelay)
 						s.ChannelMessageSend(m.ChannelID, partTwo)
 					}
 				}
 			}
+		case "channel":
+			s.ChannelMessageSend(m.ChannelID, "Channel ID: "+m.ChannelID)
 		case "eel":
 			if len(cmdSlices) > 1 {
 				if cmdSlices[1] == "me" {
-					s.ChannelFileSend(m.ChannelID, "eel.png", msg.EelPic())
+					eelPic, err := msg.EelPic()
+					if err != nil {
+						s.ChannelMessageSend(m.ChannelID, err.Error())
+					} else {
+						s.ChannelFileSend(m.ChannelID, "eel.png", eelPic)
+					}
 				}
 			}
 		case "flip":
 			s.ChannelMessageSend(m.ChannelID, msg.Flip())
 		case "help":
 			s.ChannelMessageSend(m.ChannelID, "The following commands are available for use:\n"+
-				"/badjoke me\n"+
-				"/eel me\n"+
-				"/flip\n"+
-				"/help\n"+
-				"/ping\n")
+				"```\n"+
+				"/badjoke me             : Tell a joke\n"+
+				"/channel                : Get channel info\n"+
+				"/eel me                 : Post an eel pic\n"+
+				"/flip                   : Flip a coin\n"+
+				"/help                   : Display this message\n"+
+				"/ping                   : Pong\n"+
+				"/play <game>            : Play the given game\n"+
+				"/say <msg>              : Say the given message\n"+
+				"/saychan <chan> <msg>   : Say the given message in the given channel\n"+
+				"/taunt <tauntID>        : Post a taunt given a taunt ID\n"+
+				"```")
 		case "ping":
 			s.ChannelMessageSend(m.ChannelID, "Pong")
 		case "play":
@@ -155,9 +171,14 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				s.UpdateStatus(0, "")
 			}
 		case "say":
-			if len(m.Content) > 5 {
+			if len(cmdSlices) > 1 {
 				s.ChannelMessageDelete(m.ChannelID, m.ID)
-				s.ChannelMessageSend(m.ChannelID, m.Content[5:])
+				s.ChannelMessageSend(m.ChannelID, strings.Join(cmdSlices[1:], " "))
+			}
+		case "saychan":
+			if len(cmdSlices) > 2 {
+				s.ChannelMessageDelete(m.ChannelID, m.ID)
+				s.ChannelMessageSend(cmdSlices[1], strings.Join(cmdSlices[2:], " "))
 			}
 		case "taunt":
 			if len(cmdSlices) > 1 {

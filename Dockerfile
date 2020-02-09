@@ -15,6 +15,7 @@ RUN apk update && apk add --no-cache ca-certificates
 COPY --from=build-env /go/src/eelbot/eelbot /executable/eelbot
 COPY EelbotDB.db /executable/EelbotDB.db
 COPY taunts /executable/taunts
+COPY pics /executable/pics
 
 WORKDIR /executable
 ENTRYPOINT ./eelbot -t $EELBOT_TOKEN
