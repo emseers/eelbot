@@ -2,10 +2,13 @@ package msg
 
 import (
 	"database/sql"
+	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// Joke returns a single joke from the eelbot database.
+// If the joke is not multiline, the second string is left blank.
 func Joke() (string, string, error) {
 	db, err := sql.Open("sqlite3", sqliteDBString)
 	if err != nil {
@@ -22,14 +25,15 @@ func Joke() (string, string, error) {
 	return jokeLine1, jokeLine2, nil
 }
 
-func JokeSpecific(jokeNum string) (string, string, error) {
+// JokeSpecific returns a single joke given the joke ID in the eelbot database.
+func JokeSpecific(jokeNum uint64) (string, string, error) {
 	db, err := sql.Open("sqlite3", sqliteDBString)
 	if err != nil {
 		return "", "", err
 	}
 	defer db.Close()
 
-	sqlQuery := "SELECT JokeText, JokeTextLine2 FROM \"EelJokes\" WHERE JokeID=" + jokeNum + ";"
+	sqlQuery := "SELECT JokeText, JokeTextLine2 FROM \"EelJokes\" WHERE JokeID=" + strconv.FormatUint(jokeNum, 10) + ";"
 	row := db.QueryRow(sqlQuery)
 
 	var jokeLine1 string

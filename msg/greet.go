@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// IsMorningGreet checks if a string begins with a possible morning greeting.
 func IsMorningGreet(msg string) bool {
 	greetings := [5]string{
 		"mornin",
@@ -23,6 +24,7 @@ func IsMorningGreet(msg string) bool {
 	return false
 }
 
+// IsGoodbyeGreet checks if a string begins with a possible goodbye greeting.
 func IsGoodbyeGreet(msg string) bool {
 	greetings := [12]string{
 		"gnight",
@@ -48,6 +50,7 @@ func IsGoodbyeGreet(msg string) bool {
 	return false
 }
 
+// MorningGreet returns a morning greeting.
 func MorningGreet() string {
 	greetings := [10]string{
 		"Morning",
@@ -65,6 +68,7 @@ func MorningGreet() string {
 	return greetings[rand.Intn(len(greetings))]
 }
 
+// GoodbyeGreet returns a goodbye message.
 func GoodbyeGreet() string {
 	greetings := [10]string{
 		"Night",
@@ -80,4 +84,17 @@ func GoodbyeGreet() string {
 	}
 
 	return greetings[rand.Intn(len(greetings))]
+}
+
+// YellResponse returns a yell response message.
+func YellResponse() string {
+	responses := [5]string{
+		"Stop yelling",
+		"Saying things louder doesn't make you right",
+		"Chillax",
+		"Why so serious?",
+		"Calm down",
+	}
+
+	return responses[rand.Intn(len(responses))]
 }

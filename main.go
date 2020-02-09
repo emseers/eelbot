@@ -11,23 +11,22 @@ import (
 	"time"
 
 	"github.com/Emseers/Eelbot/msg"
-
 	"github.com/bwmarrin/discordgo"
+	"gopkg.in/ini.v1"
 )
 
 var token string
+var msgTimeout time.Duration
+var multiLineJokeDelay time.Duration
 var buffer = make([][]byte, 0)
 
-var timeout = 10 * time.Second
 var flagYl bool
 var flagQm bool
 var flagMg bool
 var flagEg bool
 
-var multiLineJokeDelay = 3 * time.Second
-
 func setFlag(flag *bool) {
-	time.Sleep(timeout)
+	time.Sleep(msgTimeout)
 	*flag = true
 }
 
@@ -41,6 +40,28 @@ func main() {
 		fmt.Println("No token provided. Please run: Eelbot -t <bot token>")
 		return
 	}
+
+	cfg, err := ini.Load("config.ini")
+	if err != nil {
+		fmt.Println("Failed to read config file: ", err)
+		return
+	}
+
+	// Set message timeout
+	msgTimeoutSecs, err := cfg.Section("General").Key("msg_timeout").Uint()
+	if err != nil {
+		fmt.Println("Failed to read msg_timeout: ", err)
+		return
+	}
+	msgTimeout = time.Duration(uint(time.Second) * msgTimeoutSecs)
+
+	// Set multi line joke delay time
+	multiLineJokeDelaySecs, err := cfg.Section("Jokes").Key("multi_line_joke_delay").Uint()
+	if err != nil {
+		fmt.Println("Failed to read multi_line_joke_delay: ", err)
+		return
+	}
+	multiLineJokeDelay = time.Duration(uint(time.Second) * multiLineJokeDelaySecs)
 
 	// Set flags
 	flagYl = true
@@ -122,8 +143,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 						time.Sleep(multiLineJokeDelay)
 						s.ChannelMessageSend(m.ChannelID, partTwo)
 					}
-				} else if _, err := strconv.Atoi(cmdSlices[1]); err == nil {
-					partOne, partTwo, err := msg.JokeSpecific(cmdSlices[1])
+				} else if num, err := strconv.ParseUint(cmdSlices[1], 10, 0); err == nil {
+					partOne, partTwo, err := msg.JokeSpecific(num)
 					if err != nil {
 						s.ChannelMessageSend(m.ChannelID, err.Error())
 					} else {
@@ -143,6 +164,19 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 						s.ChannelMessageSend(m.ChannelID, err.Error())
 					} else {
 						s.ChannelFileSend(m.ChannelID, "eel.png", eelPic)
+					}
+				} else if len(cmdSlices) > 2 {
+					if cmdSlices[1] == "bomb" {
+						if num, err := strconv.ParseUint(cmdSlices[2], 10, 0); err == nil {
+							eelPics, err := msg.EelBomb(num)
+							if err != nil {
+								s.ChannelMessageSend(m.ChannelID, err.Error())
+							} else {
+								for _, eelPic := range eelPics {
+									s.ChannelFileSend(m.ChannelID, "eel.png", eelPic)
+								}
+							}
+						}
 					}
 				}
 			}

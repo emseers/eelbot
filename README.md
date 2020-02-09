@@ -14,7 +14,7 @@ Build with:
 
 Run the bot with the token:
 
-    ./eelbot -t <EELBOT_TOKEN>
+    ./Eelbot -t <EELBOT_TOKEN>
 
 ## Docker
 
