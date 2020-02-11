@@ -24,6 +24,7 @@ var flagYl bool
 var flagQm bool
 var flagMg bool
 var flagEg bool
+var flagLl bool
 
 func setFlag(flag *bool) {
 	time.Sleep(msgTimeout)
@@ -68,6 +69,7 @@ func main() {
 	flagQm = true
 	flagMg = true
 	flagEg = true
+	flagLl = true
 
 	// Create a new Discord session using the provided bot token
 	dg, err := discordgo.New("Bot " + token)
@@ -126,7 +128,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// Convert message to lowercase and parse
-	content = strings.ToLower(content)
+	content = strings.ToLower(m.Content)
 	if strings.HasPrefix(content, "/") {
 		cmd := content[1:]
 		cmdSlices := strings.Split(cmd, " ")
@@ -188,6 +190,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				"/badjoke me             : Tell a joke\n"+
 				"/channel                : Get channel info\n"+
 				"/eel me                 : Post an eel pic\n"+
+				"/eel bomb <n>           : Post n eel pics\n"+
 				"/flip                   : Flip a coin\n"+
 				"/help                   : Display this message\n"+
 				"/ping                   : Pong\n"+
@@ -207,12 +210,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		case "say":
 			if len(cmdSlices) > 1 {
 				s.ChannelMessageDelete(m.ChannelID, m.ID)
-				s.ChannelMessageSend(m.ChannelID, strings.Join(cmdSlices[1:], " "))
+				s.ChannelMessageSend(m.ChannelID, m.Content[len("/say "):]) // Trim prefix
 			}
 		case "saychan":
 			if len(cmdSlices) > 2 {
 				s.ChannelMessageDelete(m.ChannelID, m.ID)
-				s.ChannelMessageSend(cmdSlices[1], strings.Join(cmdSlices[2:], " "))
+				s.ChannelMessageSend(cmdSlices[1], m.Content[len("/saychan "+cmdSlices[1]+" "):]) // Trim prefix
 			}
 		case "taunt":
 			if len(cmdSlices) > 1 {
@@ -233,6 +236,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "Don't you questionmark me")
 			flagQm = false
 			go setFlag(&flagQm)
+		}
+	} else if strings.HasPrefix(content, "lol") {
+		if flagLl {
+			s.ChannelMessageSend(m.ChannelID, "lol")
+			flagLl = false
+			go setFlag(&flagLl)
 		}
 	} else if msg.IsMorningGreet(content) {
 		if flagMg {
