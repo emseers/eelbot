@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"regexp"
 	"strconv"
 	"strings"
 	"syscall"
@@ -127,6 +128,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	}
 
+	laughRe := regexp.MustCompile("l[o0]+l")
+
 	// Convert message to lowercase and parse
 	content = strings.ToLower(m.Content)
 	if strings.HasPrefix(content, "/") {
@@ -237,7 +240,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			flagQm = false
 			go setFlag(&flagQm)
 		}
-	} else if strings.HasPrefix(content, "lol") {
+	} else if laughRe.Match([]byte(content))  {
 		if flagLl {
 			s.ChannelMessageSend(m.ChannelID, "lol")
 			flagLl = false
