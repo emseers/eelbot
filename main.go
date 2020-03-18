@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math/rand"
 	"os"
 	"os/signal"
 	"regexp"
@@ -25,7 +26,6 @@ var flagYl bool
 var flagQm bool
 var flagMg bool
 var flagEg bool
-var flagLl bool
 
 func setFlag(flag *bool) {
 	time.Sleep(msgTimeout)
@@ -70,7 +70,6 @@ func main() {
 	flagQm = true
 	flagMg = true
 	flagEg = true
-	flagLl = true
 
 	// Create a new Discord session using the provided bot token
 	dg, err := discordgo.New("Bot " + token)
@@ -240,12 +239,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			flagQm = false
 			go setFlag(&flagQm)
 		}
-	} else if laughRe.Match([]byte(content))  {
-		if flagLl {
-			s.ChannelMessageSend(m.ChannelID, "lol")
-			flagLl = false
-			go setFlag(&flagLl)
-		}
+	} else if laughRe.Match([]byte(content)) && rand.Intn(100) < 17 {
+		s.ChannelMessageSend(m.ChannelID, "lol")
 	} else if msg.IsMorningGreet(content) {
 		if flagMg {
 			s.ChannelMessageSend(m.ChannelID, msg.MorningGreet())
