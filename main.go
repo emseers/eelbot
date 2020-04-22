@@ -204,6 +204,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		case "ping":
 			s.ChannelMessageSend(m.ChannelID, "Pong")
 		case "play":
+			s.ChannelMessageDelete(m.ChannelID, m.ID)
 			if len(m.Content) > 6 {
 				s.UpdateStatus(0, m.Content[6:])
 			} else {
