@@ -212,13 +212,17 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 		case "say":
 			if len(cmdSlices) > 1 {
-				s.ChannelMessageDelete(m.ChannelID, m.ID)
-				s.ChannelMessageSend(m.ChannelID, m.Content[len("/say "):]) // Trim prefix
+				if len(cmdSlices) != 2 || cmdSlices[1] != "lol" { // Filter out "lol" messages
+					s.ChannelMessageDelete(m.ChannelID, m.ID)
+					s.ChannelMessageSend(m.ChannelID, m.Content[len("/say "):]) // Trim prefix
+				}
 			}
 		case "saychan":
 			if len(cmdSlices) > 2 {
-				s.ChannelMessageDelete(m.ChannelID, m.ID)
-				s.ChannelMessageSend(cmdSlices[1], m.Content[len("/saychan "+cmdSlices[1]+" "):]) // Trim prefix
+				if len(cmdSlices) != 3 || cmdSlices[2] != "lol" { // Filter out "lol" messages
+					s.ChannelMessageDelete(m.ChannelID, m.ID)
+					s.ChannelMessageSend(cmdSlices[1], m.Content[len("/saychan "+cmdSlices[1]+" "):]) // Trim prefix
+				}
 			}
 		case "taunt":
 			if len(cmdSlices) > 1 {
