@@ -1,3 +1,22 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+
+# Git files and README
 .git
 .gitignore
 README.md
+
+# Config files
+*.ini
+
+# SQLite databases
+*.db
+
+# Taunts and pics folders
+**/taunts/
+**/pics/

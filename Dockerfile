@@ -2,19 +2,21 @@ FROM golang:1.13-alpine AS build-env
 
 RUN apk add --no-cache git mercurial build-base
 
-COPY . /go/src/github.com/Emseers/Eelbot
+RUN mkdir -p /go/src/github.com/Emseers/Eelbot
 WORKDIR /go/src/github.com/Emseers/Eelbot
-RUN go build
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
+
+COPY . .
+RUN mkdir bin && go build -o ./bin/ ./cmd/...
 
 FROM alpine:3.11
 
 RUN apk update && apk add --no-cache ca-certificates
 
-COPY --from=build-env /go/src/github.com/Emseers/Eelbot/Eelbot /executable/Eelbot
-COPY EelbotDB.db /executable/EelbotDB.db
-COPY config.ini /executable/config.ini
-COPY taunts /executable/taunts
-COPY pics /executable/pics
+COPY --from=build-env /go/src/github.com/Emseers/Eelbot/bin/eelbot /app/eelbot
 
-WORKDIR /executable
-ENTRYPOINT ./Eelbot -t $EELBOT_TOKEN
+WORKDIR /app
+ENTRYPOINT ["./eelbot"]

@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+bin/
 
 # Test binary, built with `go test -c`
 *.test
@@ -11,9 +12,9 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Database file
-EelbotDB.db
+# SQLite databases
+*.db
 
 # Taunts and pics folders
-taunts/*
-pics/*
+**/taunts/
+**/pics/
