@@ -3,8 +3,8 @@ package eelbot
 import (
 	"io"
 
-	"github.com/Emseers/Eelbot/internal/msg"
 	"github.com/bwmarrin/discordgo"
+	"github.com/emseers/eelbot/internal/msg"
 )
 
 // NewBot creates a new bot instance.
@@ -51,7 +51,6 @@ func NewBot(ctx NewBotCtx) (bot *Bot, err error) {
 
 	bot.dgBot.AddHandler(bot.guildCreateHandler)
 	bot.dgBot.AddHandler(bot.messageCreateHandler)
-	// bot.dgBot.Identify.Intents = discordgo.IntentsGuildMessages
 	return
 }
 

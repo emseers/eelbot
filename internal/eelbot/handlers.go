@@ -1,8 +1,8 @@
 package eelbot
 
 import (
-	"github.com/Emseers/Eelbot/internal/msg"
 	"github.com/bwmarrin/discordgo"
+	"github.com/emseers/eelbot/internal/msg"
 )
 
 func (bot *Bot) guildCreateHandler(dg *discordgo.Session, event *discordgo.GuildCreate) {

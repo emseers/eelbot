@@ -1,9 +1,9 @@
 package eelbot
 
 import (
-	"github.com/Emseers/Eelbot/internal/config"
-	"github.com/Emseers/Eelbot/internal/msg"
 	"github.com/bwmarrin/discordgo"
+	"github.com/emseers/eelbot/internal/config"
+	"github.com/emseers/eelbot/internal/msg"
 )
 
 // NewBotCtx is the context needed to create an instance of the bot.

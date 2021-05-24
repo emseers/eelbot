@@ -1,4 +1,4 @@
-module github.com/Emseers/Eelbot
+module github.com/emseers/eelbot
 
 go 1.13
 

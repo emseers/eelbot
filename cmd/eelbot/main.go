@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Emseers/Eelbot/internal/config"
-	"github.com/Emseers/Eelbot/internal/eelbot"
+	"github.com/emseers/eelbot/internal/config"
+	"github.com/emseers/eelbot/internal/eelbot"
 )
 
 func main() {
