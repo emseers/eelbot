@@ -88,7 +88,7 @@ docker run \
     --name eelbot \
     -v <full/path/to/eelbot.db>:/app/eelbot.db \
     -v <full/path/to/config.ini>:/app/config.ini \
-    -v <full/path/to/pics/folder>:/app/pics \
+    -v <full/path/to/images/folder>:/app/images \
     -v <full/path/to/taunts/folder>:/app/taunts \
     eelbot:latest \
     -t <discord-bot-token>
