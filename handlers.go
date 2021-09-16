@@ -2,7 +2,7 @@ package eelbot
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/emseers/eelbot/internal/msg"
+	"github.com/emseers/eelbot/msg"
 )
 
 func (bot *Bot) guildCreateHandler(dg *discordgo.Session, event *discordgo.GuildCreate) {
@@ -24,7 +24,7 @@ func (bot *Bot) messageCreateHandler(dg *discordgo.Session, event *discordgo.Mes
 		return
 	}
 
-	bot.msgInterpreter.ParseAndReply(event.ChannelID, event.ID, event.Content, msg.CallBackCtx{
+	bot.msgInterpreter.ParseAndReply(event.ChannelID, event.ID, event.Content, msg.Callbacks{
 		UpdateStatus: bot.UpdateStatus,
 		SendMsg:      bot.SendMsg,
 		SendFile:     bot.SendFile,

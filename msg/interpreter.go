@@ -2,6 +2,7 @@ package msg
 
 import (
 	"database/sql"
+	"io"
 	"strconv"
 	"strings"
 	"time"
@@ -9,18 +10,49 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// UpdateStatusFunc is a callback function that will be used by the Interpreter to update the bot's status.
+type UpdateStatusFunc func(game string)
+
+// SendMsgFunc is a callback function that will be used by the Interpreter to send messages.
+type SendMsgFunc func(channelID, msg string)
+
+// SendFileFunc is a callback function that will be used by the Interpreter to send files.
+type SendFileFunc func(channelID, filename string, file io.Reader)
+
+// DeleteMsgFunc is a callback function that will be used by the Interpreter to delete messages.
+type DeleteMsgFunc func(channelID, msgID string)
+
+// Callbacks is a container to hold all callback functions for the message interpreter.
+type Callbacks struct {
+	UpdateStatus UpdateStatusFunc
+	SendMsg      SendMsgFunc
+	SendFile     SendFileFunc
+	DeleteMsg    DeleteMsgFunc
+}
+
+// An Interpreter can parse and respond to certain messages.
+type Interpreter struct {
+	MsgTimeout         time.Duration
+	MultiLineJokeDelay time.Duration
+
+	db           *sql.DB
+	flagAllCaps  *flagMap
+	flagQuestion *flagMap
+	flagHello    *flagMap
+	flagGoodbye  *flagMap
+}
+
 // NewInterpreter creates a new message interpretor.
-func NewInterpreter(ctx NewInterpreterCtx) (interpreter *Interpreter, err error) {
-	db, err := sql.Open("sqlite3", ctx.SQLiteDB)
-	if err != nil {
+func NewInterpreter(dbName string) (interpreter *Interpreter, err error) {
+	var db *sql.DB
+	if db, err = sql.Open("sqlite3", dbName); err != nil {
 		return
 	}
 
 	interpreter = &Interpreter{
-		msgTimeout:         ctx.MsgTimeout,
-		multiLineJokeDelay: ctx.MultiLineJokeDelay,
-		sqliteDB:           db,
-		tauntsFolder:       ctx.TauntsFolder,
+		MsgTimeout:         5 * time.Second,
+		MultiLineJokeDelay: 5 * time.Second,
+		db:                 db,
 		flagAllCaps:        newFlagMap(),
 		flagQuestion:       newFlagMap(),
 		flagHello:          newFlagMap(),
@@ -36,13 +68,13 @@ func (interpreter *Interpreter) GetWelcomeMsg() (msg string) {
 }
 
 // ParseAndReply parses an incoming message from a channel and replies if necessary.
-func (interpreter *Interpreter) ParseAndReply(channelID, msgID, msg string, callbacks CallBackCtx) {
+func (interpreter *Interpreter) ParseAndReply(channelID, msgID, msg string, callbacks Callbacks) {
 	// Check if entire message is uppercase.
 	msgCleaned := toValidASCII(msg)
 	msgCleanedAlphabetsOnly := toAlphabetOnly(msgCleaned)
 	if len(msgCleanedAlphabetsOnly) >= 5 && msgCleanedAlphabetsOnly == strings.ToUpper(msgCleanedAlphabetsOnly) {
 		if !interpreter.flagAllCaps.hasChannel(channelID) {
-			interpreter.flagAllCaps.addChannelWithTimedReset(channelID, interpreter.msgTimeout)
+			interpreter.flagAllCaps.addChannelWithTimedReset(channelID, interpreter.MsgTimeout)
 			callbacks.SendMsg(channelID, yellResponse())
 			return
 		}
@@ -68,7 +100,7 @@ func (interpreter *Interpreter) ParseAndReply(channelID, msgID, msg string, call
 
 					callbacks.SendMsg(channelID, partOne)
 					if partTwo.Valid {
-						time.Sleep(interpreter.multiLineJokeDelay)
+						time.Sleep(interpreter.MultiLineJokeDelay)
 						callbacks.SendMsg(channelID, partTwo.String)
 					}
 					return
@@ -81,7 +113,7 @@ func (interpreter *Interpreter) ParseAndReply(channelID, msgID, msg string, call
 
 					callbacks.SendMsg(channelID, partOne)
 					if partTwo.Valid {
-						time.Sleep(interpreter.multiLineJokeDelay)
+						time.Sleep(interpreter.MultiLineJokeDelay)
 						callbacks.SendMsg(channelID, partTwo.String)
 					}
 					return
@@ -92,29 +124,23 @@ func (interpreter *Interpreter) ParseAndReply(channelID, msgID, msg string, call
 		case "eel":
 			if len(cmdSlices) > 1 {
 				if cmdSlices[1] == "me" {
-					eelPic, err := interpreter.getEelPic()
+					image, filename, err := interpreter.getImage()
 					if err != nil {
 						callbacks.SendMsg(channelID, err.Error())
 						return
 					}
 
-					callbacks.SendFile(channelID, "eel.png", eelPic)
+					callbacks.SendFile(channelID, filename, image)
 					return
-				} else if len(cmdSlices) > 2 {
-					if cmdSlices[1] == "bomb" {
-						if num, err := strconv.ParseUint(cmdSlices[2], 10, 0); err == nil {
-							eelPics, err := interpreter.getEelBomb(num)
-							if err != nil {
-								callbacks.SendMsg(channelID, err.Error())
-								return
-							}
-
-							for _, eelPic := range eelPics {
-								callbacks.SendFile(channelID, "eel.png", eelPic)
-							}
-							return
-						}
+				} else if num, err := strconv.ParseUint(cmdSlices[1], 10, 0); err == nil {
+					image, filename, err := interpreter.getSpecificImage(num)
+					if err != nil {
+						callbacks.SendMsg(channelID, err.Error())
+						return
 					}
+
+					callbacks.SendFile(channelID, filename, image)
+					return
 				}
 			}
 		case "flip":
@@ -124,16 +150,18 @@ func (interpreter *Interpreter) ParseAndReply(channelID, msgID, msg string, call
 			callbacks.SendMsg(channelID, "The following commands are available for use:\n"+
 				"```\n"+
 				"/badjoke me             : Tell a joke\n"+
+				"/badjoke <id>           : Tell a specific joke\n"+
 				"/channel                : Get channel info\n"+
-				"/eel me                 : Post an eel pic\n"+
-				"/eel bomb <n>           : Post n eel pics\n"+
+				"/eel me                 : Post an image\n"+
+				"/eel <id>               : Post a specific image\n"+
 				"/flip                   : Flip a coin\n"+
 				"/help                   : Display this message\n"+
 				"/ping                   : Pong\n"+
 				"/play <game>            : Play the given game\n"+
 				"/say <msg>              : Say the given message\n"+
 				"/saychan <chan> <msg>   : Say the given message in the given channel\n"+
-				"/taunt <tauntID>        : Post a taunt given a taunt ID\n"+
+				"/taunt me               : Post a taunt\n"+
+				"/taunt <id>             : Post a specific taunt\n"+
 				"```")
 			return
 		case "ping":
@@ -167,15 +195,24 @@ func (interpreter *Interpreter) ParseAndReply(channelID, msgID, msg string, call
 			}
 		case "taunt":
 			if len(cmdSlices) > 1 {
-				tauntNum, err := strconv.Atoi(cmdSlices[1])
-				if err == nil {
-					taunt, fileName, err := interpreter.getTaunt(tauntNum)
+				if cmdSlices[1] == "me" {
+					taunt, filename, err := interpreter.getTaunt()
 					if err != nil {
 						callbacks.SendMsg(channelID, err.Error())
 						return
 					}
 
-					callbacks.SendFile(channelID, fileName, taunt)
+					callbacks.SendFile(channelID, filename, taunt)
+					return
+				} else if num, err := strconv.ParseUint(cmdSlices[1], 10, 0); err == nil {
+					taunt, filename, err := interpreter.getSpecificTaunt(num)
+					if err != nil {
+						callbacks.SendMsg(channelID, err.Error())
+						return
+					}
+
+					callbacks.SendFile(channelID, filename, taunt)
+					return
 				}
 			}
 		}
@@ -184,31 +221,31 @@ func (interpreter *Interpreter) ParseAndReply(channelID, msgID, msg string, call
 	// Check if the message is a questionmark.
 	if strings.HasPrefix(msgLowerCase, "?") {
 		if !interpreter.flagQuestion.hasChannel(channelID) {
-			interpreter.flagQuestion.addChannelWithTimedReset(channelID, interpreter.msgTimeout)
+			interpreter.flagQuestion.addChannelWithTimedReset(channelID, interpreter.MsgTimeout)
 			callbacks.SendMsg(channelID, "Don't you questionmark me")
 			return
 		}
 	}
 
-	// Check is message is a hello greet.
+	// Check if message is a hello greet.
 	if isHelloGreet(msgLowerCase) {
 		if !interpreter.flagHello.hasChannel(channelID) {
-			interpreter.flagHello.addChannelWithTimedReset(channelID, interpreter.msgTimeout)
+			interpreter.flagHello.addChannelWithTimedReset(channelID, interpreter.MsgTimeout)
 			callbacks.SendMsg(channelID, helloGreet())
 			return
 		}
 	}
 
-	// Check is message is a goodbye greet.
+	// Check if message is a goodbye greet.
 	if isGoodbyeGreet(msgLowerCase) {
 		if !interpreter.flagGoodbye.hasChannel(channelID) {
-			interpreter.flagGoodbye.addChannelWithTimedReset(channelID, interpreter.msgTimeout)
+			interpreter.flagGoodbye.addChannelWithTimedReset(channelID, interpreter.MsgTimeout)
 			callbacks.SendMsg(channelID, goodbyeGreet())
 			return
 		}
 	}
 
-	// Check is message is a laugh.
+	// Check if message is a laugh.
 	if isLaugh(msgLowerCase) {
 		callbacks.SendMsg(channelID, "lol")
 		return
@@ -217,6 +254,6 @@ func (interpreter *Interpreter) ParseAndReply(channelID, msgID, msg string, call
 
 // Stop stops the interpreter.
 func (interpreter *Interpreter) Stop() (err error) {
-	err = interpreter.sqliteDB.Close()
+	err = interpreter.db.Close()
 	return
 }
