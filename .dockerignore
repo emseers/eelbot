@@ -17,6 +17,6 @@ README.md
 # SQLite databases
 *.db
 
-# Taunts and pics folders
+# Taunts and images folders
 **/taunts/
-**/pics/
+**/images/

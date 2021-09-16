@@ -7,55 +7,54 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/emseers/eelbot/internal/config"
-	"github.com/emseers/eelbot/internal/eelbot"
+	"github.com/emseers/eelbot"
 )
 
-func main() {
-	var (
-		configFile string
-		token      string
-	)
+var (
+	configFile = "config.ini"
+	token      = ""
+)
 
-	flag.StringVar(&configFile, "c", "config.ini", "Config file")
-	flag.StringVar(&token, "t", "", "Bot token")
+func init() {
+	flag.StringVar(&configFile, "c", configFile, "Config file")
+	flag.StringVar(&token, "t", token, "Bot token")
+}
+
+func main() {
 	flag.Parse()
 
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Fprintln(os.Stderr, r)
+			os.Exit(1)
+		}
+	}()
+
 	if token == "" {
-		fmt.Fprintln(os.Stderr, "no token provided; please use -t to provide bot token")
-		os.Exit(1)
+		panic("no token provided; please use -t to provide bot token")
 	}
 
-	cfg, err := config.LoadConfig(configFile)
+	opts, err := parseConfig(configFile)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		panic(err)
+	}
+	opts.Token = token
+
+	var bot *eelbot.Bot
+	if bot, err = eelbot.New(opts); err != nil {
+		panic(err)
 	}
 
-	eelbot, err := eelbot.NewBot(eelbot.NewBotCtx{
-		Token: token,
-		Cfg:   cfg,
-	})
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+	if err = bot.Start(); err != nil {
+		panic(err)
 	}
 
-	err = eelbot.Start()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-
-	fmt.Println("Eelbot started up successfully.")
-
+	fmt.Println("eelbot started up successfully")
 	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
 	<-sc
-	err = eelbot.Stop()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+	if err = bot.Stop(); err != nil {
+		panic(err)
 	}
 }

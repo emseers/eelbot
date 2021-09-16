@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+// A flagMap is a wrapper around a sync.Map to provide type safety to act like a map[string]struct{}.
+type flagMap struct {
+	syncMap *sync.Map
+}
+
 func newFlagMap() (fMap *flagMap) {
 	fMap = &flagMap{
 		syncMap: &sync.Map{},
