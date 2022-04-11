@@ -38,6 +38,7 @@ var (
 		"How's your day?",
 		"How's your day going?",
 		"👋",
+		"guten Morgen",
 		"What's up?",
 		"What's up",
 		"Wassup",
