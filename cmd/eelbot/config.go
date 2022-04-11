@@ -1,49 +1,60 @@
 package main
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/emseers/eelbot"
 	"gopkg.in/ini.v1"
 )
 
-const (
-	sectionGeneral  = "General"
-	sectionJokes    = "Jokes"
-	sectionDatabase = "Database"
+type config struct {
+	Database databaseConfig
+	Commands commandsConfig
+	Replies  repliesConfig
+}
 
-	keyMsgTimeout         = "msg_timeout"
-	keyMultiLineJokeDelay = "multi_line_joke_delay"
-	keyDbName             = "db_name"
-)
+type databaseConfig struct {
+	Name string `ini:"name"`
+}
 
-func parseConfig(filename string) (opts *eelbot.Options, err error) {
-	var file *ini.File
-	if file, err = ini.Load(filename); err != nil {
-		return
+type commandsConfig struct {
+	BadjokeEnable bool `ini:"badjoke_enable"`
+	BadjokeDelay  int  `ini:"badjoke_delay"`
+	EelEnable     bool `ini:"eel_enable"`
+	TauntEnable   bool `ini:"taunt_enable"`
+	ChannelEnable bool `ini:"channel_enable"`
+	FlipEnable    bool `ini:"flip_enable"`
+	ListenEnable  bool `ini:"listen_enable"`
+	PlayEnable    bool `ini:"play_enable"`
+	PingEnable    bool `ini:"ping_enable"`
+	SayEnable     bool `ini:"say_enable"`
+	SaychanEnable bool `ini:"saychan_enable"`
+}
+
+type repliesConfig struct {
+	CapsEnable      bool `ini:"caps_enable"`
+	CapsMinLen      int  `ini:"caps_min_len"`
+	CapsPercent     int  `ini:"caps_percent"`
+	CapsTimeout     int  `ini:"caps_timeout"`
+	HelloEnable     bool `ini:"hello_enable"`
+	HelloPercent    int  `ini:"hello_percent"`
+	HelloTimeout    int  `ini:"hello_timeout"`
+	GoodbyeEnable   bool `ini:"goodbye_enable"`
+	GoodbyePercent  int  `ini:"goodbye_percent"`
+	GoodbyeTimeout  int  `ini:"goodbye_timeout"`
+	LaughEnable     bool `ini:"laugh_enable"`
+	LaughPercent    int  `ini:"laugh_percent"`
+	LaughTimeout    int  `ini:"laugh_timeout"`
+	QuestionEnable  bool `ini:"question_enable"`
+	QuestionPercent int  `ini:"question_percent"`
+	QuestionTimeout int  `ini:"question_timeout"`
+}
+
+func parseConfig(path string) *config {
+	file, err := ini.InsensitiveLoad(path)
+	if err != nil {
+		panic(err)
 	}
-
-	var msgTimeoutSecs uint
-	if msgTimeoutSecs, err = file.Section(sectionGeneral).Key(keyMsgTimeout).Uint(); err != nil {
-		return
+	opts := new(config)
+	if err = file.StrictMapTo(opts); err != nil {
+		panic(err)
 	}
-
-	var multiLineJokeDelaySecs uint
-	if multiLineJokeDelaySecs, err = file.Section(sectionJokes).Key(keyMultiLineJokeDelay).Uint(); err != nil {
-		return
-	}
-
-	dbName := file.Section(sectionDatabase).Key(keyDbName).String()
-	if dbName == "" {
-		err = fmt.Errorf("%s setting not found", keyDbName)
-		return
-	}
-
-	opts = &eelbot.Options{
-		MsgTimeout:         time.Second * time.Duration(msgTimeoutSecs),
-		MultiLineJokeDelay: time.Second * time.Duration(multiLineJokeDelaySecs),
-		DBName:             dbName,
-	}
-	return
+	return opts
 }
