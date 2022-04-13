@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
 )
 
@@ -24,7 +25,7 @@ Examples:
   /%[1]s me
   /%[1]s 42
 `,
-		Eval: func(bot *eelbot.Bot, meta *eelbot.Meta, args []string) error {
+		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate, args []string) error {
 			var (
 				query string
 				line1 string
@@ -41,10 +42,10 @@ Examples:
 			if err := row.Scan(&line1, &line2); err != nil {
 				return err
 			}
-			bot.SendMsg(meta.ChannelID, line1)
+			s.ChannelMessageSend(m.ChannelID, line1)
 			if line2.Valid {
 				time.Sleep(delay)
-				bot.SendMsg(meta.ChannelID, line2.String)
+				s.ChannelMessageSend(m.ChannelID, line2.String)
 			}
 			return nil
 		},

@@ -3,6 +3,7 @@ package commands
 import (
 	"strings"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
 )
 
@@ -19,9 +20,9 @@ Says the given message on the channel ID specified by CHAN.
 Examples:
   /%[1]s 123456789 Hello world!
 `,
-		Eval: func(bot *eelbot.Bot, meta *eelbot.Meta, args []string) error {
-			bot.DeleteMsg(meta.ChannelID, meta.MessageID)
-			bot.SendMsg(args[0], strings.Join(args[1:], " "))
+		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate, args []string) error {
+			s.ChannelMessageDelete(m.ChannelID, m.ID)
+			s.ChannelMessageSend(args[0], strings.Join(args[1:], " "))
 			return nil
 		},
 	}

@@ -2,6 +2,8 @@ package eelbot
 
 import (
 	"time"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 // Reply defines a reply for a non-command message.
@@ -11,7 +13,7 @@ type Reply struct {
 
 	// Eval should return whether the reply is applicable to the given message. If false is returned, it is expected
 	// that no replies were sent.
-	Eval func(bot *Bot, meta *Meta, msg string) bool
+	Eval func(s *discordgo.Session, m *discordgo.MessageCreate) bool
 
 	m *chanMap
 }

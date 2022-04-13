@@ -3,6 +3,7 @@ package replies
 import (
 	"regexp"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
 )
 
@@ -17,9 +18,9 @@ var (
 // LaughReply returns an *eelbot.Reply that has the given percent chance to trigger a reply on valid matches.
 func LaughReply(percent int) *eelbot.Reply {
 	return &eelbot.Reply{
-		Eval: func(bot *eelbot.Bot, meta *eelbot.Meta, msg string) bool {
-			if match(msg, laughExps...) && roll(percent) {
-				bot.SendMsg(meta.ChannelID, "lol")
+		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+			if match(m.Content, laughExps...) && roll(percent) {
+				s.ChannelMessageSend(m.ChannelID, "lol")
 				return true
 			}
 			return false

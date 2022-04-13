@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 // Command defines a slash command.
@@ -23,7 +25,7 @@ type Command struct {
 
 	// Eval should evaluate the command with the args provided. If a non nil error is returned, it is expected that no
 	// replies were sent.
-	Eval func(bot *Bot, meta *Meta, args []string) error
+	Eval func(s *discordgo.Session, m *discordgo.MessageCreate, args []string) error
 }
 
 // RegisterCommand registers a new slash command. Any previously registered command with the same name will be
@@ -47,7 +49,7 @@ Examples:
   /%[1]s
   /%[1]s %[1]s
 `,
-		Eval: func(bot *Bot, meta *Meta, args []string) error {
+		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate, args []string) error {
 			b := new(strings.Builder)
 			if len(args) == 0 {
 				cmds := make([]string, 0, len(bot.cmds))
@@ -101,18 +103,18 @@ Examples:
 				}
 				b.WriteString("\n```")
 			}
-			bot.SendMsg(meta.ChannelID, b.String())
+			s.ChannelMessageSend(m.ChannelID, b.String())
 			return nil
 		},
 	}
 }
 
-func (bot *Bot) evalCmd(cmd string, c *Command, m *Meta, args []string) error {
+func evalCmd(cmd string, c *Command, s *discordgo.Session, m *discordgo.MessageCreate, args []string) error {
 	if len(args) < c.MinArgs {
 		return fmt.Errorf("%s requires at least %d arguments", cmd, c.MinArgs)
 	}
 	if c.MaxArgs >= 0 && len(args) > c.MaxArgs {
 		return fmt.Errorf("%s requires at most %d arguments", cmd, c.MaxArgs)
 	}
-	return c.Eval(bot, m, args)
+	return c.Eval(s, m, args)
 }

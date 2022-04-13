@@ -1,3 +1,45 @@
-lll:
-  line-length: 120
-  tab-width: 4
+linters-settings:
+  errcheck:
+    exclude-functions:
+      - (*os.File).Close
+      - (*github.com/bwmarrin/discordgo.Session).ChannelMessageSend
+      - (*github.com/bwmarrin/discordgo.Session).ChannelFileSend
+      - (*github.com/bwmarrin/discordgo.Session).ChannelMessageDelete
+      - (*github.com/bwmarrin/discordgo.Session).UpdateListeningStatus
+      - (*github.com/bwmarrin/discordgo.Session).UpdateGameStatus
+  lll:
+    line-length: 120
+    tab-width: 4
+
+linters:
+  disable-all: true
+  enable:
+    - deadcode
+    - errcheck
+    - goconst
+    - gocritic
+    - gofmt
+    - goimports
+    - gosimple
+    - govet
+    - ineffassign
+    - lll
+    - megacheck
+    - misspell
+    - revive
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+  fast: false
+
+issues:
+  exclude-use-default: false
+  exclude-rules:
+    - linters:
+        - lll
+      source: "^//"

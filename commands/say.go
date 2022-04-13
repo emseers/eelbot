@@ -3,6 +3,7 @@ package commands
 import (
 	"strings"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
 )
 
@@ -19,9 +20,9 @@ Says the given message on the current channel.
 Examples:
   /%[1]s Hello world!
 `,
-		Eval: func(bot *eelbot.Bot, meta *eelbot.Meta, args []string) error {
-			bot.DeleteMsg(meta.ChannelID, meta.MessageID)
-			bot.SendMsg(meta.ChannelID, strings.Join(args, " "))
+		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate, args []string) error {
+			s.ChannelMessageDelete(m.ChannelID, m.ID)
+			s.ChannelMessageSend(m.ChannelID, strings.Join(args, " "))
 			return nil
 		},
 	}

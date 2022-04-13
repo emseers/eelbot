@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
 )
 
@@ -10,13 +11,13 @@ func PlayCommand() *eelbot.Command {
 		MinArgs: 0,
 		MaxArgs: 1,
 		Summary: "Plays a game.",
-		Eval: func(bot *eelbot.Bot, meta *eelbot.Meta, args []string) error {
-			bot.DeleteMsg(meta.ChannelID, meta.MessageID)
+		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate, args []string) error {
+			s.ChannelMessageDelete(m.ChannelID, m.ID)
 			var game string
 			if len(args) == 1 {
 				game = args[0]
 			}
-			bot.UpdateGameStatus(game)
+			s.UpdateGameStatus(0, game)
 			return nil
 		},
 	}

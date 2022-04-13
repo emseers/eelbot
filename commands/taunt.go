@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
 )
 
@@ -24,7 +25,7 @@ Examples:
   /%[1]s me
   /%[1]s 42
 `,
-		Eval: func(bot *eelbot.Bot, meta *eelbot.Meta, args []string) error {
+		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate, args []string) error {
 			var (
 				query string
 				path  string
@@ -46,7 +47,7 @@ Examples:
 				return err
 			}
 			defer file.Close()
-			bot.SendFile(meta.ChannelID, name, file)
+			s.ChannelFileSend(m.ChannelID, name, file)
 			return nil
 		},
 	}

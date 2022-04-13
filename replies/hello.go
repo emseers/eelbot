@@ -1,6 +1,9 @@
 package replies
 
-import "github.com/emseers/eelbot"
+import (
+	"github.com/bwmarrin/discordgo"
+	"github.com/emseers/eelbot"
+)
 
 var (
 	helloPrefixes = []string{
@@ -56,9 +59,9 @@ var (
 // HelloReply returns an *eelbot.Reply that has the given percent chance to trigger a reply on valid matches.
 func HelloReply(percent int) *eelbot.Reply {
 	return &eelbot.Reply{
-		Eval: func(bot *eelbot.Bot, meta *eelbot.Meta, msg string) bool {
-			if hasPrefix(msg, helloPrefixes...) && roll(percent) {
-				bot.SendMsg(meta.ChannelID, randElem(helloReplies))
+		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+			if hasPrefix(m.Content, helloPrefixes...) && roll(percent) {
+				s.ChannelMessageSend(m.ChannelID, randElem(helloReplies))
 				return true
 			}
 			return false

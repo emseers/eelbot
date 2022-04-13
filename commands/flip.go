@@ -3,6 +3,7 @@ package commands
 import (
 	"math/rand"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
 )
 
@@ -12,16 +13,17 @@ func FlipCommand() *eelbot.Command {
 		MinArgs: 0,
 		MaxArgs: 0,
 		Summary: "Flips a coin.",
-		Eval: func(bot *eelbot.Bot, meta *eelbot.Meta, _ []string) error {
+		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate, _ []string) error {
 			var result string
-			if rand.Intn(6000) == 0 {
+			switch {
+			case rand.Intn(6000) == 0:
 				result = "Landed on edge"
-			} else if rand.Intn(2) == 0 {
+			case rand.Intn(2) == 0:
 				result = "Heads"
-			} else {
+			default:
 				result = "Tails"
 			}
-			bot.SendMsg(meta.ChannelID, result)
+			s.ChannelMessageSend(m.ChannelID, result)
 			return nil
 		},
 	}

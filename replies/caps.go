@@ -3,6 +3,7 @@ package replies
 import (
 	"strings"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
 )
 
@@ -29,10 +30,10 @@ var (
 // is at least minLen characters long.
 func CapsReply(minLen, percent int) *eelbot.Reply {
 	return &eelbot.Reply{
-		Eval: func(bot *eelbot.Bot, meta *eelbot.Meta, msg string) bool {
-			msg = toAlphabetsOnly(msg)
+		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+			msg := toAlphabetsOnly(m.Content)
 			if len(msg) >= minLen && msg == strings.ToUpper(msg) && roll(percent) {
-				bot.SendMsg(meta.ChannelID, randElem(capsReplies))
+				s.ChannelMessageSend(m.ChannelID, randElem(capsReplies))
 			}
 			return false
 		},
