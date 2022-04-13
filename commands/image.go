@@ -9,7 +9,19 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
+	"gopkg.in/ini.v1"
 )
+
+func init() {
+	commands["eel"] = imageFromConfig
+}
+
+func imageFromConfig(_ *ini.Section, db *sql.DB) (*eelbot.Command, error) {
+	if db == nil {
+		return nil, requiresDatabaseErr("eel")
+	}
+	return ImageCommand(db), nil
+}
 
 // ImageCommand returns an *eelbot.Command that reads and replies with an image from the given db.
 func ImageCommand(db *sql.DB) *eelbot.Command {

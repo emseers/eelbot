@@ -1,9 +1,20 @@
 package commands
 
 import (
+	"database/sql"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
+	"gopkg.in/ini.v1"
 )
+
+func init() {
+	commands["play"] = playFromConfig
+}
+
+func playFromConfig(*ini.Section, *sql.DB) (*eelbot.Command, error) {
+	return PlayCommand(), nil
+}
 
 // PlayCommand returns an *eelbot.Command that sets the bot's status to play the given game.
 func PlayCommand() *eelbot.Command {

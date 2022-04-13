@@ -3,6 +3,7 @@ package replies
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
+	"gopkg.in/ini.v1"
 )
 
 var (
@@ -65,6 +66,14 @@ var (
 		"Nice talking to you",
 	}
 )
+
+func init() {
+	replies["goodbye"] = goodbyeFromConfig
+}
+
+func goodbyeFromConfig(_ *ini.Section, percent int) (*eelbot.Reply, error) {
+	return GoodbyeReply(percent), nil
+}
 
 // GoodbyeReply returns an *eelbot.Reply that has the given percent chance to trigger a reply on valid matches.
 func GoodbyeReply(percent int) *eelbot.Reply {

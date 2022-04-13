@@ -5,11 +5,20 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
+	"gopkg.in/ini.v1"
 )
 
 var (
 	questionExp = regexp.MustCompile(`^(\?\s*)+$`)
 )
+
+func init() {
+	replies["question"] = questionFromConfig
+}
+
+func questionFromConfig(_ *ini.Section, percent int) (*eelbot.Reply, error) {
+	return QuestionReply(percent), nil
+}
 
 // QuestionReply returns an *eelbot.Reply that has the given percent chance to trigger a reply on valid matches.
 func QuestionReply(percent int) *eelbot.Reply {

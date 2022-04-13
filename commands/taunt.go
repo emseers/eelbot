@@ -9,7 +9,19 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
+	"gopkg.in/ini.v1"
 )
+
+func init() {
+	commands["taunt"] = tauntFromConfig
+}
+
+func tauntFromConfig(_ *ini.Section, db *sql.DB) (*eelbot.Command, error) {
+	if db == nil {
+		return nil, requiresDatabaseErr("taunt")
+	}
+	return TauntCommand(db), nil
+}
 
 // TauntCommand returns an *eelbot.Command that reads and replies with a taunt from the given db.
 func TauntCommand(db *sql.DB) *eelbot.Command {

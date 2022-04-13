@@ -1,3 +1,4 @@
+// Package eelbot contains a simple bot that can listen to commands and do things.
 package eelbot
 
 import (

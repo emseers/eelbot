@@ -1,11 +1,21 @@
 package commands
 
 import (
+	"database/sql"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
+	"gopkg.in/ini.v1"
 )
+
+func init() {
+	commands["say"] = sayFromConfig
+}
+
+func sayFromConfig(*ini.Section, *sql.DB) (*eelbot.Command, error) {
+	return SayCommand(), nil
+}
 
 // SayCommand returns an *eelbot.Command that replies with the given message.
 func SayCommand() *eelbot.Command {

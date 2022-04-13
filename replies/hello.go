@@ -3,6 +3,7 @@ package replies
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
+	"gopkg.in/ini.v1"
 )
 
 var (
@@ -55,6 +56,14 @@ var (
 		"Jesus Christ be praised",
 	}
 )
+
+func init() {
+	replies["hello"] = helloFromConfig
+}
+
+func helloFromConfig(_ *ini.Section, percent int) (*eelbot.Reply, error) {
+	return HelloReply(percent), nil
+}
 
 // HelloReply returns an *eelbot.Reply that has the given percent chance to trigger a reply on valid matches.
 func HelloReply(percent int) *eelbot.Reply {
