@@ -1,84 +1,79 @@
+// Package eelbot contains a simple bot that can listen to commands and do things.
 package eelbot
 
 import (
-	"io"
-	"time"
+	"fmt"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/emseers/eelbot/msg"
 )
 
-// Options is used to specify options needed to create an instance of a Bot.
-type Options struct {
-	Token              string
-	MsgTimeout         time.Duration
-	MultiLineJokeDelay time.Duration
-	DBName             string
+// Meta is the metadata passed in to a command or reply's Eval function.
+type Meta struct {
+	ChannelID string
+	MessageID string
 }
 
 // A Bot is an instance of a discord bot that can listen for commands and do various things.
 type Bot struct {
-	dg             *discordgo.Session
-	msgInterpreter *msg.Interpreter
+	dg      *discordgo.Session
+	cmds    map[string]*Command
+	replies []*Reply
 }
 
 // New creates a new Bot instance.
-func New(opts *Options) (bot *Bot, err error) {
+func New(token string) (bot *Bot, err error) {
 	var dg *discordgo.Session
-	if dg, err = discordgo.New("Bot " + opts.Token); err != nil {
+	if dg, err = discordgo.New("Bot " + token); err != nil {
 		return
 	}
-
-	var interpreter *msg.Interpreter
-	if interpreter, err = msg.NewInterpreter(opts.DBName); err != nil {
-		return
-	}
-	interpreter.MsgTimeout = opts.MsgTimeout
-	interpreter.MultiLineJokeDelay = opts.MultiLineJokeDelay
 
 	bot = &Bot{
-		dg:             dg,
-		msgInterpreter: interpreter,
+		dg:   dg,
+		cmds: map[string]*Command{},
 	}
 
-	bot.dg.AddHandler(bot.guildCreateHandler)
-	bot.dg.AddHandler(bot.messageCreateHandler)
+	bot.dg.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
+		// Ignore all messages created by the bot itself.
+		if m.Author.ID == s.State.User.ID {
+			return
+		}
+
+		if strings.HasPrefix(m.Content, "/") {
+			// strings.FieldsFunc is used over strings.Split to avoid empty values in the resulting slice.
+			args := strings.FieldsFunc(m.Content, func(c rune) bool { return c == ' ' })
+			cmd := strings.ToLower(args[0][1:])
+			args = args[1:]
+			if c, ok := bot.cmds[cmd]; ok {
+				if err := evalCmd(cmd, c, s, m, args); err != nil {
+					s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %s", err.Error()))
+				}
+			}
+			return
+		}
+
+		for _, reply := range bot.replies {
+			if reply.m.hasChannel(m.ChannelID) {
+				continue
+			}
+			if reply.Eval(s, m) {
+				if reply.Timeout > 0 {
+					reply.m.addChannelWithTimedReset(m.ChannelID, reply.Timeout)
+				}
+				return
+			}
+		}
+	})
 	return
 }
 
-// Start starts the bot and open a connection to Discord.
-func (bot *Bot) Start() (err error) {
-	err = bot.dg.Open()
-	return
-}
-
-// UpdateStatus updates the bot's status.
-func (bot *Bot) UpdateStatus(game string) {
-	_ = bot.dg.UpdateStatus(0, game)
-}
-
-// SendMsg sends the given message to the given channel.
-func (bot *Bot) SendMsg(channelID, msg string) {
-	_, _ = bot.dg.ChannelMessageSend(channelID, msg)
-}
-
-// SendFile sends the given file to the given channel.
-func (bot *Bot) SendFile(channelID, filename string, file io.Reader) {
-	_, _ = bot.dg.ChannelFileSend(channelID, filename, file)
-}
-
-// DeleteMsg deletes the given message ID from the given channel.
-func (bot *Bot) DeleteMsg(channelID, msgID string) {
-	_ = bot.dg.ChannelMessageDelete(channelID, msgID)
+// Start starts the bot and opens a connection to Discord.
+func (bot *Bot) Start() error {
+	bot.createHelpCmd()
+	return bot.dg.Open()
 }
 
 // Stop stops the bot and closes any open connections.
-func (bot *Bot) Stop() (err error) {
-	err = bot.msgInterpreter.Stop()
-	if err != nil {
-		return
-	}
-
-	err = bot.dg.Close()
-	return
+func (bot *Bot) Stop() error {
+	return bot.dg.Close()
 }

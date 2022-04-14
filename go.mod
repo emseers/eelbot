@@ -1,16 +1,16 @@
 module github.com/emseers/eelbot
 
-go 1.17
+go 1.18
 
 require (
-	github.com/bwmarrin/discordgo v0.20.2
-	github.com/mattn/go-sqlite3 v1.14.8
-	github.com/smartystreets/goconvey v1.6.4 // indirect
-	gopkg.in/ini.v1 v1.62.0
+	github.com/bwmarrin/discordgo v0.24.0
+	github.com/mattn/go-sqlite3 v1.14.12
+	gopkg.in/ini.v1 v1.66.4
 )
 
 require (
-	github.com/gorilla/websocket v1.4.0 // indirect
-	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2 // indirect
-	golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a // indirect
+	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/stretchr/testify v1.7.1 // indirect
+	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
+	golang.org/x/sys v0.0.0-20201119102817-f84b799fce68 // indirect
 )

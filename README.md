@@ -50,7 +50,7 @@ to the `taunts` table. The `path` should contain the full path to the taunt.
 
 ## Build
 
-Install [golang](https://golang.org/) 1.17 or later. Clone the project and build
+Install [golang](https://golang.org/) 1.18 or later. Clone the project and build
 with:
 
 ```

@@ -1,13 +1,20 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
+	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/emseers/eelbot"
+	"github.com/emseers/eelbot/commands"
+	"github.com/emseers/eelbot/replies"
+	_ "github.com/mattn/go-sqlite3"
+	"gopkg.in/ini.v1"
 )
 
 var (
@@ -18,6 +25,8 @@ var (
 func init() {
 	flag.StringVar(&configFile, "c", configFile, "Config file")
 	flag.StringVar(&token, "t", token, "Bot token")
+
+	rand.Seed(time.Now().UnixNano())
 }
 
 func main() {
@@ -34,14 +43,28 @@ func main() {
 		panic("no token provided; please use -t to provide bot token")
 	}
 
-	opts, err := parseConfig(configFile)
+	bot, err := eelbot.New(token)
 	if err != nil {
 		panic(err)
 	}
-	opts.Token = token
 
-	var bot *eelbot.Bot
-	if bot, err = eelbot.New(opts); err != nil {
+	var opts *ini.File
+	if opts, err = ini.InsensitiveLoad(configFile); err != nil {
+		panic(err)
+	}
+
+	var db *sql.DB
+	if dbName := opts.Section("Database").Key("name").String(); dbName != "" {
+		if db, err = sql.Open("sqlite3", dbName); err != nil {
+			panic(err)
+		}
+	}
+
+	if err = commands.Register(bot, opts.Section("Commands"), db); err != nil {
+		panic(err)
+	}
+
+	if err = replies.Register(bot, opts.Section("Replies")); err != nil {
 		panic(err)
 	}
 
@@ -54,6 +77,8 @@ func main() {
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
 	<-sc
+	fmt.Println()
+	fmt.Println("goodbye")
 	if err = bot.Stop(); err != nil {
 		panic(err)
 	}
