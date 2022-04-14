@@ -44,7 +44,7 @@ Examples:
 			)
 			if args[0] == "me" {
 				query = "SELECT path FROM taunts ORDER BY RANDOM() LIMIT 1;"
-			} else if num, err := strconv.ParseUint(args[0], 10, 0); err == nil {
+			} else if num, err := strconv.ParseUint(args[0], 10, 64); err == nil {
 				query = fmt.Sprintf("SELECT path FROM taunts WHERE id=%d;", num)
 			} else {
 				return unknownDirectiveErr(args[0])
