@@ -39,6 +39,12 @@ func New(token string) (bot *Bot, err error) {
 			return
 		}
 
+		defer func() {
+			if r := recover(); r != nil {
+				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %v", r))
+			}
+		}()
+
 		if strings.HasPrefix(m.Content, "/") {
 			// strings.FieldsFunc is used over strings.Split to avoid empty values in the resulting slice.
 			args := strings.FieldsFunc(m.Content, func(c rune) bool { return c == ' ' })
