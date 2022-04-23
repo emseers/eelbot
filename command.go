@@ -25,7 +25,7 @@ type Command struct {
 
 	// Eval should evaluate the command with the args provided. If a non nil error is returned, it is expected that no
 	// replies were sent.
-	Eval func(s *discordgo.Session, m *discordgo.MessageCreate, args []string) error
+	Eval func(s Session, m *discordgo.MessageCreate, args []string) error
 }
 
 // RegisterCommand registers a new slash command. Any previously registered command with the same name will be
@@ -49,7 +49,7 @@ Examples:
   /%[1]s
   /%[1]s %[1]s
 `,
-		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate, args []string) error {
+		Eval: func(s Session, m *discordgo.MessageCreate, args []string) error {
 			b := new(strings.Builder)
 			if len(args) == 0 {
 				cmds := make([]string, 0, len(bot.cmds))

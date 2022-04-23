@@ -13,7 +13,7 @@ type Reply struct {
 
 	// Eval should return whether the reply is applicable to the given message. If false is returned, it is expected
 	// that no replies were sent.
-	Eval func(s *discordgo.Session, m *discordgo.MessageCreate) bool
+	Eval func(s Session, m *discordgo.MessageCreate) bool
 
 	m *chanMap
 }

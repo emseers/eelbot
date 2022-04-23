@@ -68,7 +68,7 @@ func helloFromConfig(_ *ini.Section, percent int) (*eelbot.Reply, error) {
 // HelloReply returns an *eelbot.Reply that has the given percent chance to trigger a reply on valid matches.
 func HelloReply(percent int) *eelbot.Reply {
 	return &eelbot.Reply{
-		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+		Eval: func(s eelbot.Session, m *discordgo.MessageCreate) bool {
 			if hasPrefix(m.Content, helloPrefixes...) && roll(percent) {
 				s.ChannelMessageSend(m.ChannelID, randElem(helloReplies))
 				return true

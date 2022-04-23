@@ -8,32 +8,21 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// Meta is the metadata passed in to a command or reply's Eval function.
-type Meta struct {
-	ChannelID string
-	MessageID string
-}
-
 // A Bot is an instance of a discord bot that can listen for commands and do various things.
 type Bot struct {
-	dg      *discordgo.Session
+	sess    Session
 	cmds    map[string]*Command
 	replies []*Reply
 }
 
 // New creates a new Bot instance.
-func New(token string) (bot *Bot, err error) {
-	var dg *discordgo.Session
-	if dg, err = discordgo.New("Bot " + token); err != nil {
-		return
-	}
-
-	bot = &Bot{
-		dg:   dg,
+func New(sess Session) *Bot {
+	bot := &Bot{
+		sess: sess,
 		cmds: map[string]*Command{},
 	}
 
-	bot.dg.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
+	bot.sess.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
 		// Ignore all messages created by the bot itself.
 		if m.Author.ID == s.State.User.ID {
 			return
@@ -70,16 +59,17 @@ func New(token string) (bot *Bot, err error) {
 			}
 		}
 	})
-	return
+
+	return bot
 }
 
 // Start starts the bot and opens a connection to Discord.
 func (bot *Bot) Start() error {
 	bot.createHelpCmd()
-	return bot.dg.Open()
+	return bot.sess.Open()
 }
 
 // Stop stops the bot and closes any open connections.
 func (bot *Bot) Stop() error {
-	return bot.dg.Close()
+	return bot.sess.Close()
 }

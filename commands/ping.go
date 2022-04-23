@@ -22,7 +22,7 @@ func PingCommand() *eelbot.Command {
 		MinArgs: 0,
 		MaxArgs: 0,
 		Summary: "Replies with \"Pong\".",
-		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate, _ []string) error {
+		Eval: func(s eelbot.Session, m *discordgo.MessageCreate, _ []string) error {
 			s.ChannelMessageSend(m.ChannelID, "Pong")
 			return nil
 		},

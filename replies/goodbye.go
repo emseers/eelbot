@@ -78,7 +78,7 @@ func goodbyeFromConfig(_ *ini.Section, percent int) (*eelbot.Reply, error) {
 // GoodbyeReply returns an *eelbot.Reply that has the given percent chance to trigger a reply on valid matches.
 func GoodbyeReply(percent int) *eelbot.Reply {
 	return &eelbot.Reply{
-		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+		Eval: func(s eelbot.Session, m *discordgo.MessageCreate) bool {
 			if hasPrefix(m.Content, goodbyePrefixes...) && roll(percent) {
 				s.ChannelMessageSend(m.ChannelID, randElem(goodbyeReplies))
 				return true

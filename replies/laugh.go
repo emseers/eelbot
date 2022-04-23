@@ -27,7 +27,7 @@ func laughFromConfig(_ *ini.Section, percent int) (*eelbot.Reply, error) {
 // LaughReply returns an *eelbot.Reply that has the given percent chance to trigger a reply on valid matches.
 func LaughReply(percent int) *eelbot.Reply {
 	return &eelbot.Reply{
-		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+		Eval: func(s eelbot.Session, m *discordgo.MessageCreate) bool {
 			if match(m.Content, laughExps...) && roll(percent) {
 				s.ChannelMessageSend(m.ChannelID, "lol")
 				return true

@@ -22,7 +22,7 @@ func ChannelCommand() *eelbot.Command {
 		MinArgs: 0,
 		MaxArgs: 0,
 		Summary: "Posts the current channel ID.",
-		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate, _ []string) error {
+		Eval: func(s eelbot.Session, m *discordgo.MessageCreate, _ []string) error {
 			s.ChannelMessageSend(m.ChannelID, m.ChannelID)
 			return nil
 		},

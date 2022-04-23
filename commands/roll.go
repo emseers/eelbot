@@ -25,7 +25,7 @@ func RollCommand() *eelbot.Command {
 		MinArgs: 1,
 		MaxArgs: 2,
 		Summary: "Rolls a die.",
-		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate, args []string) error {
+		Eval: func(s eelbot.Session, m *discordgo.MessageCreate, args []string) error {
 			var (
 				lower int64
 				upper int64
