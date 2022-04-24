@@ -47,6 +47,7 @@ func CapsReply(percent, minLen int) *eelbot.Reply {
 			msg := toAlphabetsOnly(m.Content)
 			if len(msg) >= minLen && msg == strings.ToUpper(msg) && roll(percent) {
 				s.ChannelMessageSend(m.ChannelID, randElem(capsReplies))
+				return true
 			}
 			return false
 		},
