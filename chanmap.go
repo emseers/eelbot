@@ -19,16 +19,14 @@ func (c *chanMap) hasChannel(channelID string) (ok bool) {
 	return
 }
 
-func (c *chanMap) addChannel(channelID string) {
+func (c *chanMap) addChannel(channelID string, resetTime time.Duration) {
 	c.m.Store(channelID, struct{}{})
-}
-
-func (c *chanMap) addChannelWithTimedReset(channelID string, resetTime time.Duration) {
-	c.addChannel(channelID)
-	go func() {
-		time.Sleep(resetTime)
-		c.deleteChannel(channelID)
-	}()
+	if resetTime > 0 {
+		go func() {
+			time.Sleep(resetTime)
+			c.deleteChannel(channelID)
+		}()
+	}
 }
 
 func (c *chanMap) deleteChannel(channelID string) {

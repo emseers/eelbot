@@ -30,7 +30,7 @@ func New(sess Session) *Bot {
 
 		defer func() {
 			if r := recover(); r != nil {
-				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %v", r))
+				bot.sess.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %v", r))
 			}
 		}()
 
@@ -40,8 +40,8 @@ func New(sess Session) *Bot {
 			cmd := strings.ToLower(args[0][1:])
 			args = args[1:]
 			if c, ok := bot.cmds[cmd]; ok {
-				if err := evalCmd(cmd, c, s, m, args); err != nil {
-					s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %s", err.Error()))
+				if err := evalCmd(cmd, c, bot.sess, m, args); err != nil {
+					bot.sess.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error: %s", err.Error()))
 				}
 			}
 			return
@@ -51,9 +51,9 @@ func New(sess Session) *Bot {
 			if reply.m.hasChannel(m.ChannelID) {
 				continue
 			}
-			if reply.Eval(s, m) {
+			if reply.Eval(bot.sess, m) {
 				if reply.Timeout > 0 {
-					reply.m.addChannelWithTimedReset(m.ChannelID, reply.Timeout)
+					reply.m.addChannel(m.ChannelID, reply.Timeout)
 				}
 				return
 			}

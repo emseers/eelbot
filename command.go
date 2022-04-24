@@ -109,7 +109,7 @@ Examples:
 	}
 }
 
-func evalCmd(cmd string, c *Command, s *discordgo.Session, m *discordgo.MessageCreate, args []string) error {
+func evalCmd(cmd string, c *Command, s Session, m *discordgo.MessageCreate, args []string) error {
 	if len(args) < c.MinArgs {
 		return fmt.Errorf("%s requires at least %d arguments", cmd, c.MinArgs)
 	}
