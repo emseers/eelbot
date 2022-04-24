@@ -2,7 +2,6 @@ package commands_test
 
 import (
 	"database/sql"
-	"encoding/base64"
 	"fmt"
 	"io"
 	"log"
@@ -20,23 +19,8 @@ const (
 	testJoke1          = "A steak pun is a rare medium well done."
 	testJoke2          = "What do you call a fish with no eyes?"
 	testJoke2Punchline = "Fsh"
-	testFileName1      = "file1.png"
-	testFileName2      = "file2.png"
-
-	testFile1 = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw1AUhU/TSkUqDnYQcchQ" +
-		"O1kQFXHUKhShQqgVWnUweekfNGlIUlwcBdeCgz+LVQcXZ10dXAVB8AfE0clJ0UVKvC8ptIjxwuN9nHfP4b37AKFZZZoVGgc03TYzqaSYy6+K" +
-		"4VeEMIQAYojLzDLmJCkN3/q6p06quwTP8u/7s/rVgsWAgEg8ywzTJt4gnt60Dc77xFFWllXic+Ixky5I/Mh1xeM3ziWXBZ4ZNbOZeeIosVjq" +
-		"YqWLWdnUiKeIY6qmU76Q81jlvMVZq9ZZ+578hZGCvrLMdVojSGERS5AgQkEdFVRhI0G7ToqFDJ0nffzDrl8il0KuChg5FlCDBtn1g//B79la" +
-		"xckJLymSBHpeHOdjFAjvAq2G43wfO07rBAg+A1d6x19rAjOfpDc6WuwIGNgGLq47mrIHXO4AQ0+GbMquFKQlFIvA+xl9Ux4YvAX61ry5tc9x" +
-		"+gBkaVbpG+DgEIiXKHvd59293XP7t6c9vx9wdHKmBJh2ogAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+YEGAEnEd1Tcy8AAAAZdEVY" +
-		"dENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAFUlEQVQI1wXBAQEAAACAEP9PF1CpMCnkBftjnTYAAAAAAElFTkSuQmCC"
-	testFile2 = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw1AUhU/TSkUqDnYQcchQ" +
-		"O1kQFXHUKhShQqgVWnUweekfNGlIUlwcBdeCgz+LVQcXZ10dXAVB8AfE0clJ0UVKvC8ptIjxwuN9nHfP4b37AKFZZZoVGgc03TYzqaSYy6+K" +
-		"4VeEMIQAYojLzDLmJCkN3/q6p06quwTP8u/7s/rVgsWAgEg8ywzTJt4gnt60Dc77xFFWllXic+Ixky5I/Mh1xeM3ziWXBZ4ZNbOZeeIosVjq" +
-		"YqWLWdnUiKeIY6qmU76Q81jlvMVZq9ZZ+578hZGCvrLMdVojSGERS5AgQkEdFVRhI0G7ToqFDJ0nffzDrl8il0KuChg5FlCDBtn1g//B79la" +
-		"xckJLymSBHpeHOdjFAjvAq2G43wfO07rBAg+A1d6x19rAjOfpDc6WuwIGNgGLq47mrIHXO4AQ0+GbMquFKQlFIvA+xl9Ux4YvAX61ry5tc9x" +
-		"+gBkaVbpG+DgEIiXKHvd59293XP7t6c9vx9wdHKmBJh2ogAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+YEGAEnJmXu1iAAAAAZdEVY" +
-		"dENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAEklEQVQI12P4//8/AwT8//8fACnkBft7DmIIAAAAAElFTkSuQmCC"
+	testFile1          = "testdata/file1.png"
+	testFile2          = "testdata/file2.png"
 )
 
 var (
@@ -46,20 +30,6 @@ var (
 func setup() (err error) {
 	db, err = sql.Open("sqlite3", ":memory:")
 	if err != nil {
-		return
-	}
-
-	var f1, f2 []byte
-	if f1, err = base64.StdEncoding.DecodeString(testFile1); err != nil {
-		return
-	}
-	if f2, err = base64.StdEncoding.DecodeString(testFile2); err != nil {
-		return
-	}
-	if err = os.WriteFile(testFileName1, f1, 0644); err != nil {
-		return
-	}
-	if err = os.WriteFile(testFileName2, f2, 0644); err != nil {
 		return
 	}
 
@@ -90,22 +60,15 @@ INSERT INTO "images" ("path") VALUES
 INSERT INTO "taunts" ("path") VALUES
   (%[4]q),
   (%[5]q);
-`, testJoke1, testJoke2, testJoke2Punchline, testFileName1, testFileName2))
+`, testJoke1, testJoke2, testJoke2Punchline, testFile1, testFile2))
 	return
-}
-
-func teardown() {
-	_ = os.Remove(testFileName1)
-	_ = os.Remove(testFileName2)
 }
 
 func TestMain(m *testing.M) {
 	if err := setup(); err != nil {
 		log.Fatalln(err)
 	}
-	code := m.Run()
-	teardown()
-	os.Exit(code)
+	os.Exit(m.Run())
 }
 
 // Creates a Message with the provided arguments.
