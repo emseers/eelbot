@@ -13,7 +13,6 @@ include:
 
 Eelbot requires a SQLite database with the following schema:
 ```sql
-CREATE TABLE sqlite_sequence(name,seq);
 CREATE TABLE "images" (
   "id"   INTEGER NOT NULL,
   "path" TEXT NOT NULL,
