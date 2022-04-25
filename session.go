@@ -16,11 +16,11 @@ type Session interface {
 	ChannelMessagesPinned(channelID string) ([]*discordgo.Message, error)
 
 	ChannelTyping(channelID string) (err error)
-	ChannelMessageSend(channelID string, content string) (*discordgo.Message, error)
+	ChannelMessageSend(channelID, content string) (*discordgo.Message, error)
 	ChannelMessageSendEmbeds(channelID string, embeds []*discordgo.MessageEmbed) (*discordgo.Message, error)
-	ChannelMessageSendTTS(channelID string, content string) (*discordgo.Message, error)
+	ChannelMessageSendTTS(channelID, content string) (*discordgo.Message, error)
 	ChannelFileSend(channelID, name string, r io.Reader) (*discordgo.Message, error)
-	ChannelFileSendWithMessage(channelID, content string, name string, r io.Reader) (*discordgo.Message, error)
+	ChannelFileSendWithMessage(channelID, content, name string, r io.Reader) (*discordgo.Message, error)
 
 	ChannelMessageEdit(channelID, messageID, content string) (*discordgo.Message, error)
 	ChannelMessageEditEmbeds(channelID, messageID string, embeds []*discordgo.MessageEmbed) (*discordgo.Message, error)
@@ -32,7 +32,7 @@ type Session interface {
 	ChannelMessageUnpin(channelID, messageID string) error
 
 	UpdateGameStatus(idle int, name string) error
-	UpdateStreamingStatus(idle int, name string, url string) error
+	UpdateStreamingStatus(idle int, name, url string) error
 	UpdateListeningStatus(name string) error
 
 	Open() error
