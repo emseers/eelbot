@@ -43,10 +43,11 @@ func main() {
 		panic("no token provided; please use -t to provide bot token")
 	}
 
-	bot, err := eelbot.New(token)
+	s, err := eelbot.NewSession(token)
 	if err != nil {
 		panic(err)
 	}
+	bot := eelbot.New(s)
 
 	var opts *ini.File
 	if opts, err = ini.InsensitiveLoad(configFile); err != nil {

@@ -43,10 +43,11 @@ func capsFromConfig(s *ini.Section, percent int) (*eelbot.Reply, error) {
 // is at least minLen characters long.
 func CapsReply(percent, minLen int) *eelbot.Reply {
 	return &eelbot.Reply{
-		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+		Eval: func(s eelbot.Session, m *discordgo.MessageCreate) bool {
 			msg := toAlphabetsOnly(m.Content)
 			if len(msg) >= minLen && msg == strings.ToUpper(msg) && roll(percent) {
 				s.ChannelMessageSend(m.ChannelID, randElem(capsReplies))
+				return true
 			}
 			return false
 		},

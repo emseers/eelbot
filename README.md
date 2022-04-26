@@ -1,5 +1,7 @@
 # Eelbot
 
+[![Build Status](https://github.com/emseers/eelbot/actions/workflows/go.yml/badge.svg)](https://github.com/emseers/eelbot/actions)
+
 Eelbot is a simple bot that can listen to commands on do things. Eelbot needs an
 SQLite database to store the various required data to function. Notable features
 include:
@@ -13,7 +15,6 @@ include:
 
 Eelbot requires a SQLite database with the following schema:
 ```sql
-CREATE TABLE sqlite_sequence(name,seq);
 CREATE TABLE "images" (
   "id"   INTEGER NOT NULL,
   "path" TEXT NOT NULL,

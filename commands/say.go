@@ -30,7 +30,7 @@ Says the given message on the current channel.
 Examples:
   /%[1]s Hello world!
 `,
-		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate, args []string) error {
+		Eval: func(s eelbot.Session, m *discordgo.MessageCreate, args []string) error {
 			s.ChannelMessageDelete(m.ChannelID, m.ID)
 			s.ChannelMessageSend(m.ChannelID, strings.Join(args, " "))
 			return nil

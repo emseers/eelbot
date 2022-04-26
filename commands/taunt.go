@@ -37,7 +37,7 @@ Examples:
   /%[1]s me
   /%[1]s 42
 `,
-		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate, args []string) error {
+		Eval: func(s eelbot.Session, m *discordgo.MessageCreate, args []string) error {
 			var (
 				query string
 				path  string

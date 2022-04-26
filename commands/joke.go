@@ -41,7 +41,7 @@ Examples:
   /%[1]s me
   /%[1]s 42
 `,
-		Eval: func(s *discordgo.Session, m *discordgo.MessageCreate, args []string) error {
+		Eval: func(s eelbot.Session, m *discordgo.MessageCreate, args []string) error {
 			var (
 				query string
 				line1 string
@@ -60,6 +60,7 @@ Examples:
 			}
 			s.ChannelMessageSend(m.ChannelID, line1)
 			if line2.Valid {
+				s.ChannelTyping(m.ChannelID)
 				time.Sleep(delay)
 				s.ChannelMessageSend(m.ChannelID, line2.String)
 			}

@@ -3,13 +3,32 @@ linters-settings:
     exclude-functions:
       - (*os.File).Close
       - (*github.com/bwmarrin/discordgo.Session).ChannelMessageSend
-      - (*github.com/bwmarrin/discordgo.Session).ChannelFileSend
-      - (*github.com/bwmarrin/discordgo.Session).ChannelMessageDelete
-      - (*github.com/bwmarrin/discordgo.Session).UpdateListeningStatus
-      - (*github.com/bwmarrin/discordgo.Session).UpdateGameStatus
+      - (github.com/emseers/eelbot.Session).Channel
+      - (github.com/emseers/eelbot.Session).ChannelMessage
+      - (github.com/emseers/eelbot.Session).ChannelMessages
+      - (github.com/emseers/eelbot.Session).ChannelMessagesPinned
+      - (github.com/emseers/eelbot.Session).ChannelTyping
+      - (github.com/emseers/eelbot.Session).ChannelMessageSend
+      - (github.com/emseers/eelbot.Session).ChannelMessageSendEmbeds
+      - (github.com/emseers/eelbot.Session).ChannelMessageSendTTS
+      - (github.com/emseers/eelbot.Session).ChannelFileSend
+      - (github.com/emseers/eelbot.Session).ChannelFileSendWithMessage
+      - (github.com/emseers/eelbot.Session).ChannelMessageEdit
+      - (github.com/emseers/eelbot.Session).ChannelMessageEditEmbeds
+      - (github.com/emseers/eelbot.Session).ChannelMessageDelete
+      - (github.com/emseers/eelbot.Session).ChannelMessagesBulkDelete
+      - (github.com/emseers/eelbot.Session).ChannelMessagePin
+      - (github.com/emseers/eelbot.Session).ChannelMessageUnpin
+      - (github.com/emseers/eelbot.Session).UpdateGameStatus
+      - (github.com/emseers/eelbot.Session).UpdateStreamingStatus
+      - (github.com/emseers/eelbot.Session).UpdateListeningStatus
+      - (github.com/emseers/eelbot.Session).Open
+      - (github.com/emseers/eelbot.Session).Close
   lll:
     line-length: 120
     tab-width: 4
+  unparam:
+    check-exported: false
 
 linters:
   disable-all: true
