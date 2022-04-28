@@ -2,6 +2,7 @@ package replies
 
 import (
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
@@ -30,22 +31,22 @@ func init() {
 	replies["caps"] = capsFromConfig
 }
 
-func capsFromConfig(opts map[string]any, percent int) (*eelbot.Reply, error) {
+func capsFromConfig(opts map[string]any, percent int, minDelay, maxDelay time.Duration) (*eelbot.Reply, error) {
 	minLen, ok := opts["min_len"].(float64)
 	if !ok {
 		minLen = 5
 	}
-	return CapsReply(percent, int(minLen)), nil
+	return CapsReply(percent, minDelay, maxDelay, int(minLen)), nil
 }
 
 // CapsReply returns an *eelbot.Reply that has the given percent chance to trigger a reply on an all caps message that
 // is at least minLen characters long.
-func CapsReply(percent, minLen int) *eelbot.Reply {
+func CapsReply(percent int, minDelay, maxDelay time.Duration, minLen int) *eelbot.Reply {
 	return &eelbot.Reply{
 		Eval: func(s eelbot.Session, m *discordgo.MessageCreate) bool {
 			msg := toAlphabetsOnly(m.Content)
 			if len(msg) >= minLen && msg == strings.ToUpper(msg) && roll(percent) {
-				s.ChannelMessageSend(m.ChannelID, randElem(capsReplies))
+				asyncReply(s, m.ChannelID, randElem(capsReplies), minDelay, maxDelay)
 				return true
 			}
 			return false

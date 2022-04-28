@@ -13,7 +13,7 @@ import (
 func TestReply(t *testing.T) {
 	s := newTestSession()
 	bot := eelbot.New(s)
-	r := replies.LaughReply(100)
+	r := replies.LaughReply(100, 0, 0)
 	r.Timeout = 500 * time.Millisecond
 	bot.RegisterReply(*r)
 
@@ -23,6 +23,7 @@ func TestReply(t *testing.T) {
 	for i := 0; i < 20; i++ {
 		s.send(newMsg("lol", testChannelID, "", ""))
 	}
+	time.Sleep(10 * time.Millisecond) // Small delay for goroutines to finish writes.
 	require.Equal(t, "lol", strings.TrimSpace(s.messages[testChannelID].String()))
 
 	s.messages[testChannelID].Reset()
@@ -31,5 +32,6 @@ func TestReply(t *testing.T) {
 	for i := 0; i < 20; i++ {
 		s.send(newMsg("lol", testChannelID, "", ""))
 	}
+	time.Sleep(10 * time.Millisecond) // Small delay for goroutine to finish the write.
 	require.Equal(t, "lol", strings.TrimSpace(s.messages[testChannelID].String()))
 }

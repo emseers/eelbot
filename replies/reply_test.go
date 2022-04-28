@@ -1,7 +1,9 @@
 package replies_test
 
 import (
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/emseers/eelbot"
 	"github.com/emseers/eelbot/replies"
@@ -47,4 +49,23 @@ func TestRegister(t *testing.T) {
 	cfg["caps"].(map[string]any)["min_len"] = "foo"
 	cfg["hello"].(map[string]any)["percent"] = "bar"
 	require.NoError(t, replies.Register(bot, cfg))
+}
+
+func TestReply(t *testing.T) {
+	s := newTestSession()
+	f := replies.LaughReply(100, 50*time.Millisecond, 150*time.Millisecond).Eval
+
+	require.True(t, f(s, newMsgCreate("lol", testChannelID)))
+	time.Sleep(10 * time.Millisecond) // Not enough delay for goroutine to finish the write.
+	require.Nil(t, s.messages[testChannelID])
+	time.Sleep(200 * time.Millisecond) // Enough delay for goroutine to finish the write.
+	require.Equal(t, "lol", strings.TrimSpace(s.messages[testChannelID].String()))
+
+	s.messages[testChannelID].Reset()
+	f = replies.LaughReply(100, 50*time.Millisecond, 0).Eval // maxDelay is less than minDelay.
+	require.True(t, f(s, newMsgCreate("lol", testChannelID)))
+	time.Sleep(10 * time.Millisecond) // Not enough delay for goroutine to finish the write.
+	require.Equal(t, "", strings.TrimSpace(s.messages[testChannelID].String()))
+	time.Sleep(100 * time.Millisecond) // Enough delay for goroutine to finish the write.
+	require.Equal(t, "lol", strings.TrimSpace(s.messages[testChannelID].String()))
 }

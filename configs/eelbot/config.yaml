@@ -54,28 +54,38 @@ replies:
     enable: true
     min_len: 5 # Minimum number of characters in message to consider match (ie. avoid short acronyms).
     percent: 17 # Percent chance to trigger reply on match.
+    min_delay: 3 # Minimum time (in seconds) to wait before replying.
+    max_delay: 6 # Maximum time (in seconds) to wait before replying.
     timeout: 120 # Timeout (in seconds) for consequetive replies.
 
   # Reply to hello messages.
   hello:
     enable: true
     percent: 33 # Percent chance to trigger reply on match.
+    min_delay: 3 # Minimum time (in seconds) to wait before replying.
+    max_delay: 6 # Maximum time (in seconds) to wait before replying.
     timeout: 600 # Timeout (in seconds) for consequetive replies.
 
   # Reply to goodbye messages.
   goodbye:
     enable: true
     percent: 33 # Percent chance to trigger reply on match.
+    min_delay: 3 # Minimum time (in seconds) to wait before replying.
+    max_delay: 6 # Maximum time (in seconds) to wait before replying.
     timeout: 600 # Timeout (in seconds) for consequetive replies.
 
   # Reply to laugh messages.
   laugh:
     enable: true
     percent: 17 # Percent chance to trigger reply on match.
+    min_delay: 2 # Minimum time (in seconds) to wait before replying.
+    max_delay: 4 # Maximum time (in seconds) to wait before replying.
     timeout: 10 # Timeout (in seconds) for consequetive replies.
 
   # Reply to messages that only contain the questionmark character.
   question:
     enable: true
     percent: 17 # Percent chance to trigger reply on match.
+    min_delay: 3 # Minimum time (in seconds) to wait before replying.
+    max_delay: 6 # Maximum time (in seconds) to wait before replying.
     timeout: 10 # Timeout (in seconds) for consequetive replies.
