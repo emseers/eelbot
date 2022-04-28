@@ -56,7 +56,7 @@ func TestCommand(t *testing.T) {
 	s.messages[testChannelID].Reset()
 	s.send(newMsg("/help play", testChannelID, "", ""))
 	require.Equal(t, "```"+`
-/play [ARG]
+/play [ARGS...]
 
 Plays a game.
 `+"```", strings.TrimSpace(s.messages[testChannelID].String()))

@@ -1,6 +1,7 @@
 package commands_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/emseers/eelbot/commands"
@@ -11,8 +12,9 @@ func TestPlay(t *testing.T) {
 	s := newTestSession()
 	f := commands.PlayCommand().Eval
 
-	require.NoError(t, f(s, newMsgCreate("", testChannelID), []string{"Doom"}))
-	require.Equal(t, "Doom", s.statusPlay)
+	const name = "Doom II: Hell on Earth"
+	require.NoError(t, f(s, newMsgCreate("/play "+name, testChannelID), strings.Split(name, " ")))
+	require.Equal(t, name, s.statusPlay)
 
 	require.NoError(t, f(s, newMsgCreate("", testChannelID), []string{}))
 	require.Equal(t, "", s.statusPlay)

@@ -31,7 +31,9 @@ Examples:
 `,
 		Eval: func(s eelbot.Session, m *discordgo.MessageCreate, args []string) error {
 			s.ChannelMessageDelete(m.ChannelID, m.ID)
-			s.ChannelMessageSend(m.ChannelID, strings.Join(args, " "))
+
+			// Don't use args and rather use the raw input directly.
+			s.ChannelMessageSend(m.ChannelID, strings.SplitN(m.Content, " ", 2)[1])
 			return nil
 		},
 	}

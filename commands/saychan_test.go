@@ -14,6 +14,7 @@ func TestSayChan(t *testing.T) {
 
 	const chanID = "42"
 	const msg = "Time is an illusion, lunchtime doubly so."
-	require.NoError(t, f(s, newMsgCreate("", testChannelID), append([]string{chanID}, strings.Split(msg, " ")...)))
+	require.NoError(t, f(s, newMsgCreate("/saychan "+chanID+" "+msg, testChannelID),
+		append([]string{chanID}, strings.Split(msg, " ")...)))
 	require.Equal(t, msg, strings.TrimSpace(s.messages[chanID].String()))
 }

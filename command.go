@@ -89,6 +89,8 @@ Examples:
 						for i := cmd.MinArgs; i < cmd.MaxArgs; i++ {
 							a = append(a, fmt.Sprintf("[ARG%d]", i+1))
 						}
+					} else {
+						a = append(a, "[ARGS...]")
 					}
 					if len(a) > 0 {
 						if len(a) == 1 {
