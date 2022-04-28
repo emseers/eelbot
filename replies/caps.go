@@ -5,7 +5,6 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"gopkg.in/ini.v1"
 )
 
 var (
@@ -31,12 +30,12 @@ func init() {
 	replies["caps"] = capsFromConfig
 }
 
-func capsFromConfig(s *ini.Section, percent int) (*eelbot.Reply, error) {
-	minLen, err := s.Key("caps_min_len").Int()
-	if err != nil {
+func capsFromConfig(opts map[string]any, percent int) (*eelbot.Reply, error) {
+	minLen, ok := opts["min_len"].(float64)
+	if !ok {
 		minLen = 5
 	}
-	return CapsReply(percent, minLen), nil
+	return CapsReply(percent, int(minLen)), nil
 }
 
 // CapsReply returns an *eelbot.Reply that has the given percent chance to trigger a reply on an all caps message that

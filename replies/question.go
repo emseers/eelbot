@@ -5,7 +5,6 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"gopkg.in/ini.v1"
 )
 
 var (
@@ -16,7 +15,7 @@ func init() {
 	replies["question"] = questionFromConfig
 }
 
-func questionFromConfig(_ *ini.Section, percent int) (*eelbot.Reply, error) {
+func questionFromConfig(_ map[string]any, percent int) (*eelbot.Reply, error) {
 	return QuestionReply(percent), nil
 }
 

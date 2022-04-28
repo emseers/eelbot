@@ -5,14 +5,13 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"gopkg.in/ini.v1"
 )
 
 func init() {
 	commands["listen"] = listenFromConfig
 }
 
-func listenFromConfig(*ini.Section, *sql.DB) (*eelbot.Command, error) {
+func listenFromConfig(map[string]any, *sql.DB) (*eelbot.Command, error) {
 	return ListenCommand(), nil
 }
 

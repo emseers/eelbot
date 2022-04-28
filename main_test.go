@@ -56,7 +56,7 @@ func (s *testsession) send(m *discordgo.Message) {
 	s.handler(s.sess, &discordgo.MessageCreate{Message: m})
 }
 
-func (s *testsession) AddHandler(handler interface{}) func() {
+func (s *testsession) AddHandler(handler any) func() {
 	s.handler = handler.(func(s *discordgo.Session, m *discordgo.MessageCreate))
 	return func() {}
 }

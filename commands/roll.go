@@ -8,14 +8,13 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"gopkg.in/ini.v1"
 )
 
 func init() {
 	commands["roll"] = rollFromConfig
 }
 
-func rollFromConfig(*ini.Section, *sql.DB) (*eelbot.Command, error) {
+func rollFromConfig(map[string]any, *sql.DB) (*eelbot.Command, error) {
 	return RollCommand(), nil
 }
 

@@ -47,7 +47,7 @@ type testsession struct {
 	messages map[string]*strings.Builder
 }
 
-func (s *testsession) AddHandler(handler interface{}) func() {
+func (s *testsession) AddHandler(handler any) func() {
 	return func() {}
 }
 

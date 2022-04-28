@@ -5,7 +5,6 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"gopkg.in/ini.v1"
 )
 
 var (
@@ -20,7 +19,7 @@ func init() {
 	replies["laugh"] = laughFromConfig
 }
 
-func laughFromConfig(_ *ini.Section, percent int) (*eelbot.Reply, error) {
+func laughFromConfig(_ map[string]any, percent int) (*eelbot.Reply, error) {
 	return LaughReply(percent), nil
 }
 

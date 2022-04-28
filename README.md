@@ -61,19 +61,20 @@ go build -o ./bin/ ./cmd/...
 
 ## Run
 
-Grab the config template from `configs/eelbot/config.ini` and update it to match
-your setup, then save it. Run the bot executable in the `bin` folder:
+Grab the config template from `configs/eelbot/config.yaml` and update it to
+match your setup, then save it. Run the bot executable in the `bin` folder:
 
 ```
 ./eelbot -c <path/to/config/file> -t <discord-bot-token>
 ```
 
 Note that passing the path to the config is optional, and if it's not passed it
-looks for a file called `config.ini` in the current folder.
+looks for a file called either `config.json` or `config.yaml` in the current
+folder.
 
 ## Docker
 
-As an alternative to building and running Eelbot locally, you can build and run
+As an alternative to building and running eelbot locally, you can build and run
 it in [Docker](https://www.docker.com/). Build the image with the provided
 Dockerfile:
 

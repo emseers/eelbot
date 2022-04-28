@@ -6,14 +6,13 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"gopkg.in/ini.v1"
 )
 
 func init() {
 	commands["flip"] = flipFromConfig
 }
 
-func flipFromConfig(*ini.Section, *sql.DB) (*eelbot.Command, error) {
+func flipFromConfig(map[string]any, *sql.DB) (*eelbot.Command, error) {
 	return FlipCommand(), nil
 }
 

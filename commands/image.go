@@ -9,14 +9,13 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"gopkg.in/ini.v1"
 )
 
 func init() {
 	commands["eel"] = imageFromConfig
 }
 
-func imageFromConfig(_ *ini.Section, db *sql.DB) (*eelbot.Command, error) {
+func imageFromConfig(_ map[string]any, db *sql.DB) (*eelbot.Command, error) {
 	if db == nil {
 		return nil, requiresDatabaseErr("eel")
 	}

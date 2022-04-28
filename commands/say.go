@@ -6,14 +6,13 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"gopkg.in/ini.v1"
 )
 
 func init() {
 	commands["say"] = sayFromConfig
 }
 
-func sayFromConfig(*ini.Section, *sql.DB) (*eelbot.Command, error) {
+func sayFromConfig(map[string]any, *sql.DB) (*eelbot.Command, error) {
 	return SayCommand(), nil
 }
 

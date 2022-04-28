@@ -3,7 +3,6 @@ package replies
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"gopkg.in/ini.v1"
 )
 
 var (
@@ -61,7 +60,7 @@ func init() {
 	replies["hello"] = helloFromConfig
 }
 
-func helloFromConfig(_ *ini.Section, percent int) (*eelbot.Reply, error) {
+func helloFromConfig(_ map[string]any, percent int) (*eelbot.Reply, error) {
 	return HelloReply(percent), nil
 }
 

@@ -5,14 +5,13 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"gopkg.in/ini.v1"
 )
 
 func init() {
 	commands["channel"] = channelFromConfig
 }
 
-func channelFromConfig(*ini.Section, *sql.DB) (*eelbot.Command, error) {
+func channelFromConfig(map[string]any, *sql.DB) (*eelbot.Command, error) {
 	return ChannelCommand(), nil
 }
 

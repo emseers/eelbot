@@ -8,7 +8,7 @@ import (
 
 // Session is a discord session.
 type Session interface {
-	AddHandler(handler interface{}) func()
+	AddHandler(handler any) func()
 
 	Channel(channelID string) (*discordgo.Channel, error)
 	ChannelMessage(channelID, messageID string) (*discordgo.Message, error)
