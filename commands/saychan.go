@@ -6,14 +6,13 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"gopkg.in/ini.v1"
 )
 
 func init() {
 	commands["saychan"] = saychanFromConfig
 }
 
-func saychanFromConfig(*ini.Section, *sql.DB) (*eelbot.Command, error) {
+func saychanFromConfig(map[string]any, *sql.DB) (*eelbot.Command, error) {
 	return SayChanCommand(), nil
 }
 
@@ -32,7 +31,9 @@ Examples:
 `,
 		Eval: func(s eelbot.Session, m *discordgo.MessageCreate, args []string) error {
 			s.ChannelMessageDelete(m.ChannelID, m.ID)
-			s.ChannelMessageSend(args[0], strings.Join(args[1:], " "))
+
+			// Don't use args and rather use the raw input directly.
+			s.ChannelMessageSend(args[0], strings.SplitN(m.Content, " ", 3)[2])
 			return nil
 		},
 	}

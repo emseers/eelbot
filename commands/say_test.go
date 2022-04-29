@@ -13,6 +13,6 @@ func TestSay(t *testing.T) {
 	f := commands.SayCommand().Eval
 
 	const msg = "Time is an illusion, lunchtime doubly so."
-	require.NoError(t, f(s, newMsgCreate("", testChannelID), strings.Split(msg, " ")))
+	require.NoError(t, f(s, newMsgCreate("/say "+msg, testChannelID), strings.Split(msg, " ")))
 	require.Equal(t, msg, strings.TrimSpace(s.messages[testChannelID].String()))
 }

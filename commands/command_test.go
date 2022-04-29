@@ -6,64 +6,50 @@ import (
 	"github.com/emseers/eelbot"
 	"github.com/emseers/eelbot/commands"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/ini.v1"
 )
 
-const (
-	cfg = `[Commands]
-badjoke_enable = true
-badjoke_delay = 3
-eel_enable = true
-taunt_enable = true
-channel_enable = true
-flip_enable = true
-listen_enable = true
-play_enable = true
-ping_enable = true
-roll_enable = true
-say_enable = true
-saychan_enable = true
-`
-	cfgJokeOnly = `[Commands]
-badjoke_enable = true
-`
-	cfgEelOnly = `[Commands]
-eel_enable = true
-`
-	cfgTauntOnly = `[Commands]
-taunt_enable = true
-`
+var (
+	cfg = map[string]any{
+		"badjoke": map[string]any{"enable": true, "delay": float64(3)},
+		"eel":     map[string]any{"enable": true},
+		"taunt":   map[string]any{"enable": true},
+		"channel": map[string]any{"enable": true},
+		"flip":    map[string]any{"enable": true},
+		"listen":  map[string]any{"enable": true},
+		"play":    map[string]any{"enable": true},
+		"ping":    map[string]any{"enable": true},
+		"roll":    map[string]any{"enable": true},
+		"say":     map[string]any{"enable": true},
+		"saychan": map[string]any{"enable": true},
+	}
+	cfgJokeOnly = map[string]any{
+		"badjoke": map[string]any{"enable": true},
+	}
+	cfgEelOnly = map[string]any{
+		"eel": map[string]any{"enable": true},
+	}
+	cfgTauntOnly = map[string]any{
+		"taunt": map[string]any{"enable": true},
+	}
 )
 
 func TestRegister(t *testing.T) {
 	bot := eelbot.New(newTestSession())
-	config, err := ini.InsensitiveLoad([]byte(cfg))
-	require.NoError(t, err)
 
-	s := config.Section("Commands")
-	require.ErrorContains(t, commands.Register(bot, s, nil), "command requires a database")
-	require.NoError(t, commands.Register(bot, s, db))
+	require.ErrorContains(t, commands.Register(bot, cfg, nil), "command requires a database")
+	require.NoError(t, commands.Register(bot, cfg, db))
 
 	// Should be fault tolerant with invalid keys.
-	s.Key("badjoke_delay").SetValue("foo")
-	s.Key("channel_enable").SetValue("bar")
-	require.NoError(t, commands.Register(bot, s, db))
+	cfg["badjoke"].(map[string]any)["delay"] = "foo"
+	cfg["channel"].(map[string]any)["enable"] = "bar"
+	require.NoError(t, commands.Register(bot, cfg, db))
 
-	config, err = ini.InsensitiveLoad([]byte(cfgJokeOnly))
-	require.NoError(t, err)
-	s = config.Section("Commands")
-	require.EqualError(t, commands.Register(bot, s, nil), "/badjoke command requires a database")
-	require.NoError(t, commands.Register(bot, s, db))
+	require.EqualError(t, commands.Register(bot, cfgJokeOnly, nil), "/badjoke command requires a database")
+	require.NoError(t, commands.Register(bot, cfgJokeOnly, db))
 
-	config, err = ini.InsensitiveLoad([]byte(cfgEelOnly))
-	require.NoError(t, err)
-	s = config.Section("Commands")
-	require.EqualError(t, commands.Register(bot, s, nil), "/eel command requires a database")
-	require.NoError(t, commands.Register(bot, s, db))
+	require.EqualError(t, commands.Register(bot, cfgEelOnly, nil), "/eel command requires a database")
+	require.NoError(t, commands.Register(bot, cfgEelOnly, db))
 
-	config, err = ini.InsensitiveLoad([]byte(cfgTauntOnly))
-	require.NoError(t, err)
-	s = config.Section("Commands")
-	require.EqualError(t, commands.Register(bot, s, nil), "/taunt command requires a database")
-	require.NoError(t, commands.Register(bot, s, db))
+	require.EqualError(t, commands.Register(bot, cfgTauntOnly, nil), "/taunt command requires a database")
+	require.NoError(t, commands.Register(bot, cfgTauntOnly, db))
 }

@@ -1,9 +1,10 @@
 package replies
 
 import (
+	"time"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"gopkg.in/ini.v1"
 )
 
 var (
@@ -71,16 +72,16 @@ func init() {
 	replies["goodbye"] = goodbyeFromConfig
 }
 
-func goodbyeFromConfig(_ *ini.Section, percent int) (*eelbot.Reply, error) {
-	return GoodbyeReply(percent), nil
+func goodbyeFromConfig(_ map[string]any, percent int, minDelay, maxDelay time.Duration) (*eelbot.Reply, error) {
+	return GoodbyeReply(percent, minDelay, maxDelay), nil
 }
 
 // GoodbyeReply returns an *eelbot.Reply that has the given percent chance to trigger a reply on valid matches.
-func GoodbyeReply(percent int) *eelbot.Reply {
+func GoodbyeReply(percent int, minDelay, maxDelay time.Duration) *eelbot.Reply {
 	return &eelbot.Reply{
 		Eval: func(s eelbot.Session, m *discordgo.MessageCreate) bool {
 			if hasPrefix(m.Content, goodbyePrefixes...) && roll(percent) {
-				s.ChannelMessageSend(m.ChannelID, randElem(goodbyeReplies))
+				asyncReply(s, m.ChannelID, randElem(goodbyeReplies), minDelay, maxDelay)
 				return true
 			}
 			return false

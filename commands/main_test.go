@@ -109,7 +109,7 @@ type testsession struct {
 	statusPlay   string
 }
 
-func (s *testsession) AddHandler(handler interface{}) func() {
+func (s *testsession) AddHandler(any) func() {
 	return func() {}
 }
 

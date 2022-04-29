@@ -56,9 +56,13 @@ func (s *testsession) send(m *discordgo.Message) {
 	s.handler(s.sess, &discordgo.MessageCreate{Message: m})
 }
 
-func (s *testsession) AddHandler(handler interface{}) func() {
+func (s *testsession) AddHandler(handler any) func() {
 	s.handler = handler.(func(s *discordgo.Session, m *discordgo.MessageCreate))
 	return func() {}
+}
+
+func (s *testsession) ChannelTyping(string) (err error) {
+	return nil
 }
 
 func (s *testsession) ChannelMessageSend(channelID, content string) (*discordgo.Message, error) {
@@ -97,10 +101,6 @@ func (s *testsession) ChannelMessages(string, int, string, string, string) ([]*d
 
 func (s *testsession) ChannelMessagesPinned(string) ([]*discordgo.Message, error) {
 	panic("ChannelMessagesPinned not implemented")
-}
-
-func (s *testsession) ChannelTyping(string) (err error) {
-	panic("ChannelTyping not implemented")
 }
 
 func (s *testsession) ChannelMessageSendEmbeds(string, []*discordgo.MessageEmbed) (*discordgo.Message, error) {

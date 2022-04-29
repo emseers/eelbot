@@ -2,17 +2,17 @@ package commands
 
 import (
 	"database/sql"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"gopkg.in/ini.v1"
 )
 
 func init() {
 	commands["listen"] = listenFromConfig
 }
 
-func listenFromConfig(*ini.Section, *sql.DB) (*eelbot.Command, error) {
+func listenFromConfig(map[string]any, *sql.DB) (*eelbot.Command, error) {
 	return ListenCommand(), nil
 }
 
@@ -20,13 +20,14 @@ func listenFromConfig(*ini.Section, *sql.DB) (*eelbot.Command, error) {
 func ListenCommand() *eelbot.Command {
 	return &eelbot.Command{
 		MinArgs: 0,
-		MaxArgs: 1,
+		MaxArgs: -1,
 		Summary: "Listens to a song.",
 		Eval: func(s eelbot.Session, m *discordgo.MessageCreate, args []string) error {
 			s.ChannelMessageDelete(m.ChannelID, m.ID)
 			var song string
-			if len(args) == 1 {
-				song = args[0]
+			if len(args) > 0 {
+				// Don't use args and rather use the raw input directly.
+				song = strings.SplitN(m.Content, " ", 2)[1]
 			}
 			s.UpdateListeningStatus(song)
 			return nil

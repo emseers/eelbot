@@ -47,8 +47,12 @@ type testsession struct {
 	messages map[string]*strings.Builder
 }
 
-func (s *testsession) AddHandler(handler interface{}) func() {
+func (s *testsession) AddHandler(any) func() {
 	return func() {}
+}
+
+func (s *testsession) ChannelTyping(string) (err error) {
+	return nil
 }
 
 func (s *testsession) ChannelMessageSend(channelID, content string) (*discordgo.Message, error) {
@@ -79,10 +83,6 @@ func (s *testsession) ChannelMessages(string, int, string, string, string) ([]*d
 
 func (s *testsession) ChannelMessagesPinned(string) ([]*discordgo.Message, error) {
 	panic("ChannelMessagesPinned not implemented")
-}
-
-func (s *testsession) ChannelTyping(string) (err error) {
-	panic("ChannelTyping not implemented")
 }
 
 func (s *testsession) ChannelMessageSendEmbeds(string, []*discordgo.MessageEmbed) (*discordgo.Message, error) {

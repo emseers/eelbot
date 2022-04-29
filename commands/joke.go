@@ -8,19 +8,18 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"gopkg.in/ini.v1"
 )
 
 func init() {
 	commands["badjoke"] = badjokeFromConfig
 }
 
-func badjokeFromConfig(s *ini.Section, db *sql.DB) (*eelbot.Command, error) {
+func badjokeFromConfig(opts map[string]any, db *sql.DB) (*eelbot.Command, error) {
 	if db == nil {
 		return nil, requiresDatabaseErr("badjoke")
 	}
-	delay, err := s.Key("badjoke_delay").Int64()
-	if err != nil {
+	delay, ok := opts["delay"].(float64)
+	if !ok {
 		delay = 3
 	}
 	return JokeCommand(db, time.Second*time.Duration(delay)), nil
