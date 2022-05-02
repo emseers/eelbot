@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 const (

@@ -3,6 +3,7 @@ package commands_test
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/emseers/eelbot/commands"
 	"github.com/stretchr/testify/require"
@@ -10,7 +11,7 @@ import (
 
 func TestJoke(t *testing.T) {
 	s := newTestSession()
-	f := commands.JokeCommand(db, 0).Eval
+	f := commands.JokeCommand(db, time.Second, 0).Eval
 
 	require.NoError(t, f(s, newMsgCreate("", testChannelID), []string{"me"}))
 	require.NotEmpty(t, s.messages[testChannelID].String())

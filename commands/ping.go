@@ -2,6 +2,7 @@ package commands
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
@@ -11,7 +12,7 @@ func init() {
 	commands["ping"] = pingFromConfig
 }
 
-func pingFromConfig(map[string]any, *sql.DB) (*eelbot.Command, error) {
+func pingFromConfig(map[string]any, *sql.DB, time.Duration) (*eelbot.Command, error) {
 	return PingCommand(), nil
 }
 

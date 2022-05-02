@@ -3,6 +3,7 @@ package commands
 import (
 	"database/sql"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
@@ -12,7 +13,7 @@ func init() {
 	commands["say"] = sayFromConfig
 }
 
-func sayFromConfig(map[string]any, *sql.DB) (*eelbot.Command, error) {
+func sayFromConfig(map[string]any, *sql.DB, time.Duration) (*eelbot.Command, error) {
 	return SayCommand(), nil
 }
 

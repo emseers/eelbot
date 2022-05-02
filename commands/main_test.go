@@ -2,7 +2,6 @@ package commands_test
 
 import (
 	"database/sql"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -11,7 +10,8 @@ import (
 	"testing"
 
 	"github.com/bwmarrin/discordgo"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/emseers/eelbot/helpers"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 const (
@@ -19,56 +19,77 @@ const (
 	testJoke1          = "A steak pun is a rare medium well done."
 	testJoke2          = "What do you call a fish with no eyes?"
 	testJoke2Punchline = "Fsh"
-	testFile1          = "testdata/file1.png"
-	testFile2          = "testdata/file2.png"
+	testFileName1      = "file1.png"
+	testFile1          = "some_image_file"
+	testFileName2      = "file2.png"
+	testFile2          = "some_other_file"
 )
 
 var (
 	db *sql.DB
 )
 
-func setup() (err error) {
-	db, err = sql.Open("sqlite3", ":memory:")
+func setup(url string) (err error) {
+	db, err = sql.Open("pgx", url)
 	if err != nil {
 		return
 	}
 
-	_, err = db.Exec(fmt.Sprintf(`
-CREATE TABLE "jokes" (
-  "id"        INTEGER NOT NULL,
-  "text"      TEXT NOT NULL,
-  "punchline" TEXT,
-  PRIMARY KEY("id" AUTOINCREMENT)
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS jokes (
+  id        integer PRIMARY KEY,
+  text      text NOT NULL,
+  punchline text
 );
-CREATE TABLE "images" (
-	"id"   INTEGER NOT NULL,
-	"path" TEXT NOT NULL,
-	PRIMARY KEY("id" AUTOINCREMENT)
-  );
-CREATE TABLE "taunts" (
-  "id"   INTEGER NOT NULL,
-  "path" TEXT NOT NULL,
-  PRIMARY KEY("id" AUTOINCREMENT)
+CREATE TABLE IF NOT EXISTS images (
+  id   integer PRIMARY KEY,
+  name text NOT NULL,
+  file bytea NOT NULL
 );
+CREATE TABLE IF NOT EXISTS taunts (
+  id   integer PRIMARY KEY,
+  name text NOT NULL,
+  file bytea NOT NULL
+);`)
+	if err != nil {
+		return
+	}
 
-INSERT INTO "jokes" ("text", "punchline") VALUES
-  (%q, null),
-  (%q, %q);
-INSERT INTO "images" ("path") VALUES
-  (%[4]q),
-  (%[5]q);
-INSERT INTO "taunts" ("path") VALUES
-  (%[4]q),
-  (%[5]q);
-`, testJoke1, testJoke2, testJoke2Punchline, testFile1, testFile2))
+	_, err = db.Exec("INSERT INTO jokes (id, text, punchline) VALUES (1, $1, null), (2, $2, $3);",
+		testJoke1, testJoke2, testJoke2Punchline)
+	if err != nil {
+		return
+	}
+
+	_, err = db.Exec("INSERT INTO images (id, name, file) VALUES (1, $1, $2), (2, $3, $4);",
+		testFileName1, []byte(testFile1), testFileName2, []byte(testFile2))
+	if err != nil {
+		return
+	}
+
+	_, err = db.Exec("INSERT INTO taunts (id, name, file) VALUES (1, $1, $2), (2, $3, $4);",
+		testFileName1, []byte(testFile1), testFileName2, []byte(testFile2))
 	return
 }
 
 func TestMain(m *testing.M) {
-	if err := setup(); err != nil {
+	url, close, err := helpers.StartPostgreSQL()
+	if err != nil {
 		log.Fatalln(err)
 	}
-	os.Exit(m.Run())
+
+	if err = setup(url); err != nil {
+		close()
+		log.Fatalln(err)
+	}
+
+	code := m.Run()
+
+	if db != nil {
+		_ = db.Close()
+	}
+	close()
+
+	os.Exit(code)
 }
 
 // Creates a Message with the provided arguments.

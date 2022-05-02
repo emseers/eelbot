@@ -1,6 +1,17 @@
 database:
-  # Name of SQLite database.
-  name: "eelbot.db"
+  # PostgreSQL database connection settings.
+  host: "localhost:5432"
+  host_env: "EELBOT_DB_HOST" # The environment variable value to use (used only if "host" is not set).
+  database: "eelbot"
+  database_env: "EELBOT_DB_NAME" # The environment variable value to use (used only if "database" is not set).
+  database_file: "/run/secrets/pgdb" # The file name to load the value from (used only if "database" is not set).
+  username: "eelbot"
+  username_env: "EELBOT_DB_USER" # The environment variable value to use (used only if "username" is not set).
+  username_file: "/run/secrets/pguser" # The file name to load the value from (used only if "username" is not set).
+  password: "mysecretpassword"
+  password_env: "EELBOT_DB_PASSWORD" # The environment variable value to use (used only if "password" is not set).
+  password_file: "/run/secrets/pgpass" # The file name to load the value from (used only if "password" is not set).
+  timeout: 10 # Timeout (in seconds) for database transactions.
 
 commands:
   # /badjoke command (requires a database).
