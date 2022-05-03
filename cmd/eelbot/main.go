@@ -90,7 +90,7 @@ func main() {
 
 	var (
 		db        *sql.DB
-		dbTimeout time.Duration = 5 * time.Second
+		dbTimeout = 5 * time.Second
 	)
 
 	if dbOpts, ok := opts["database"].(map[string]any); ok {

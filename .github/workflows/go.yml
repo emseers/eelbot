@@ -18,14 +18,25 @@ jobs:
   test:
     name: Test and Build
     runs-on: ubuntu-latest
+    container: golang:1.18-bullseye
+    services:
+      postgres:
+        image: postgres:14.2
+        env:
+          POSTGRES_USER: eelbot
+          POSTGRES_PASSWORD: testpassword
+        # Set health checks to wait until postgres has started.
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.18
       - name: Check out code
         uses: actions/checkout@v1
       - name: Test
+        env:
+          TEST_POSTGRESQL_URL: postgresql://eelbot:testpassword@postgres:5432/eelbot
         run: |
           go test -coverprofile=coverage.out ./...
           go tool cover -func=coverage.out
