@@ -89,8 +89,8 @@ replies:
   laugh:
     enable: true
     percent: 17 # Percent chance to trigger reply on match.
-    min_delay: 2 # Minimum time (in seconds) to wait before replying.
-    max_delay: 4 # Maximum time (in seconds) to wait before replying.
+    min_delay: 1 # Minimum time (in seconds) to wait before replying.
+    max_delay: 3 # Maximum time (in seconds) to wait before replying.
     timeout: 10 # Timeout (in seconds) for consequetive replies.
 
   # Reply to messages that only contain the questionmark character.

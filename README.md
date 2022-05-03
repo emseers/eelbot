@@ -2,52 +2,19 @@
 
 [![Build Status](https://github.com/emseers/eelbot/actions/workflows/go.yml/badge.svg)](https://github.com/emseers/eelbot/actions)
 
-Eelbot is a simple bot that can listen to commands on do things. Eelbot needs an
-SQLite database to store the various required data to function. Notable features
-include:
+Eelbot is a simple bot that can listen to commands on do things. Eelbot needs a
+PostgreSQL database to store the various required data to function. Notable
+features include:
 
 * Posting random (or specific) jokes (from the database)
-* Posting random (or specific) pictures (whose paths are stored in the database)
-* Posting random (or specific) audio taunts (whose paths are stored in the
-  database)
+* Posting random (or specific) pictures (from the database)
+* Posting random (or specific) audio taunts (from the database)
 
 ## Setup
 
-Eelbot requires a SQLite database with the following schema:
-```sql
-CREATE TABLE "images" (
-  "id"   INTEGER NOT NULL,
-  "path" TEXT NOT NULL,
-  PRIMARY KEY("id" AUTOINCREMENT)
-);
-CREATE TABLE "jokes" (
-  "id"        INTEGER NOT NULL,
-  "text"      TEXT NOT NULL,
-  "punchline" TEXT,
-  PRIMARY KEY("id" AUTOINCREMENT)
-);
-CREATE TABLE "taunts" (
-  "id"   INTEGER NOT NULL,
-  "path" TEXT NOT NULL,
-  PRIMARY KEY("id" AUTOINCREMENT)
-);
-```
-
-### Jokes
-
-To use the jokes functionality (with `/badjoke me` or `/badjoke <X>`), add jokes
-to the `jokes` table. Single line jokes only require the `text` column and
-multiline jokes require the punchline to be in stored in `punchline` as well.
-
-### Images
-
-To use the images functionality (with `/eel me` or `/eel <X>`), add pictures to
-the `images` table. The `path` should contain the full path to the image.
-
-### Taunts
-
-To use the taunts functionality (with `/taunt me` or `/taunt <X>`), add taunts
-to the `taunts` table. The `path` should contain the full path to the taunt.
+Eelbot requires PostgreSQL 14.2 or later (earlier versions may work, but is
+untested). Use [eelbot-ui](https://github.com/emseers/eelbot-ui) to prep/modify
+the database. Modifying the database directly is not recommended.
 
 ## Build
 
@@ -88,10 +55,7 @@ You need to mount all required files and folders to run the container:
 docker run \
     -it \
     --name eelbot \
-    -v <full/path/to/eelbot.db>:/app/eelbot.db \
-    -v <full/path/to/config.ini>:/app/config.ini \
-    -v <full/path/to/images/folder>:/app/images \
-    -v <full/path/to/taunts/folder>:/app/taunts \
+    -v <full/path/to/config.yaml>:/app/config.yaml \
     eelbot:latest \
     -t <discord-bot-token>
 ```
