@@ -13,8 +13,11 @@ features include:
 ## Setup
 
 Eelbot requires PostgreSQL 14.2 or later (earlier versions may work, but is
-untested). Use [eelbot-ui](https://github.com/emseers/eelbot-ui) to prep/modify
-the database. Modifying the database directly is not recommended.
+untested). The schema definition is in the [initdb](initdb/) directory. If using
+[Docker](https://www.docker.com/), you should be able to use it as a volume
+mount for the [initialization of the schema](https://github.com/docker-library/docs/tree/master/postgres#initialization-scripts).
+Once initialized, use [eelbot-ui](https://github.com/emseers/eelbot-ui) to
+prep/modify the database. Modifying the database directly is not recommended.
 
 ## Build
 

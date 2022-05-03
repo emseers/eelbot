@@ -19,14 +19,6 @@ func imageFromConfig(_ map[string]any, db *sql.DB, dbTimeout time.Duration) (*ee
 	if db == nil {
 		return nil, requiresDatabaseErr("eel")
 	}
-	_, err := exec(db, dbTimeout, `CREATE TABLE IF NOT EXISTS images (
-  id   integer PRIMARY KEY,
-  name text NOT NULL,
-  file bytea NOT NULL
-);`)
-	if err != nil {
-		return nil, err
-	}
 	return ImageCommand(db, dbTimeout), nil
 }
 

@@ -43,16 +43,6 @@ func Register(bot *eelbot.Bot, opts map[string]any, db *sql.DB, dbTimeout time.D
 	return nil
 }
 
-func exec(db *sql.DB, dbTimeout time.Duration, query string, args ...any) (sql.Result, error) {
-	ctx := context.Background()
-	if dbTimeout > 0 {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, dbTimeout)
-		defer cancel()
-	}
-	return db.ExecContext(ctx, query, args...)
-}
-
 func queryRow(db *sql.DB, dbTimeout time.Duration, query string, args ...any) (*sql.Row, context.CancelFunc) {
 	ctx, cancel := context.Background(), func() {}
 	if dbTimeout > 0 {

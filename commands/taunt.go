@@ -19,14 +19,6 @@ func tauntFromConfig(_ map[string]any, db *sql.DB, dbTimeout time.Duration) (*ee
 	if db == nil {
 		return nil, requiresDatabaseErr("taunt")
 	}
-	_, err := exec(db, dbTimeout, `CREATE TABLE IF NOT EXISTS taunts (
-  id   integer PRIMARY KEY,
-  name text NOT NULL,
-  file bytea NOT NULL
-);`)
-	if err != nil {
-		return nil, err
-	}
 	return TauntCommand(db, dbTimeout), nil
 }
 

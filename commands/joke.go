@@ -18,14 +18,6 @@ func badjokeFromConfig(opts map[string]any, db *sql.DB, dbTimeout time.Duration)
 	if db == nil {
 		return nil, requiresDatabaseErr("badjoke")
 	}
-	_, err := exec(db, dbTimeout, `CREATE TABLE IF NOT EXISTS jokes (
-  id        integer PRIMARY KEY,
-  text      text NOT NULL,
-  punchline text
-);`)
-	if err != nil {
-		return nil, err
-	}
 	delay, ok := opts["delay"].(float64)
 	if !ok {
 		delay = 3

@@ -1,7 +1,6 @@
 package commands_test
 
 import (
-	"database/sql"
 	"testing"
 	"time"
 
@@ -47,19 +46,12 @@ func TestRegister(t *testing.T) {
 	cfg["channel"].(map[string]any)["enable"] = "bar"
 	require.NoError(t, commands.Register(bot, cfg, db, time.Second))
 
-	invalidDb, _ := sql.Open("pgx", "postgresql://someuser@invalidpostgresql:1234/eelbot")
-	invalidExpectErr := "failed to connect to `host=invalidpostgresql user=someuser database=eelbot`: hostname " +
-		"resolving error"
-
 	require.EqualError(t, commands.Register(bot, cfgJokeOnly, nil, 0), "/badjoke command requires a database")
-	require.ErrorContains(t, commands.Register(bot, cfgJokeOnly, invalidDb, 0), invalidExpectErr)
 	require.NoError(t, commands.Register(bot, cfgJokeOnly, db, time.Second))
 
 	require.EqualError(t, commands.Register(bot, cfgEelOnly, nil, 0), "/eel command requires a database")
-	require.ErrorContains(t, commands.Register(bot, cfgEelOnly, invalidDb, 0), invalidExpectErr)
 	require.NoError(t, commands.Register(bot, cfgEelOnly, db, time.Second))
 
 	require.EqualError(t, commands.Register(bot, cfgTauntOnly, nil, 0), "/taunt command requires a database")
-	require.ErrorContains(t, commands.Register(bot, cfgTauntOnly, invalidDb, 0), invalidExpectErr)
 	require.NoError(t, commands.Register(bot, cfgTauntOnly, db, time.Second))
 }

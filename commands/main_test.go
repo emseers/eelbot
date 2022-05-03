@@ -1,10 +1,13 @@
 package commands_test
 
 import (
+	"bytes"
 	"database/sql"
 	"io"
+	"io/fs"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
@@ -15,6 +18,7 @@ import (
 )
 
 const (
+	initdbScriptsDir   = "../initdb"
 	testChannelID      = "123456789"
 	testJoke1          = "A steak pun is a rare medium well done."
 	testJoke2          = "What do you call a fish with no eyes?"
@@ -35,21 +39,28 @@ func setup(url string) (err error) {
 		return
 	}
 
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS jokes (
-  id        integer PRIMARY KEY,
-  text      text NOT NULL,
-  punchline text
-);
-CREATE TABLE IF NOT EXISTS images (
-  id   integer PRIMARY KEY,
-  name text NOT NULL,
-  file bytea NOT NULL
-);
-CREATE TABLE IF NOT EXISTS taunts (
-  id   integer PRIMARY KEY,
-  name text NOT NULL,
-  file bytea NOT NULL
-);`)
+	// Load initdb scripts and run them to setup the schema.
+	init := new(bytes.Buffer)
+	err = filepath.WalkDir(initdbScriptsDir, func(path string, f fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if f.IsDir() {
+			return nil
+		}
+		var b []byte
+		if b, err = os.ReadFile(path); err != nil {
+			return err
+		}
+		init.Write(b)
+		init.WriteByte('\n')
+		return nil
+	})
+	if err != nil {
+		return
+	}
+
+	_, err = db.Exec(init.String())
 	if err != nil {
 		return
 	}
