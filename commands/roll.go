@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
@@ -14,7 +15,7 @@ func init() {
 	commands["roll"] = rollFromConfig
 }
 
-func rollFromConfig(map[string]any, *sql.DB) (*eelbot.Command, error) {
+func rollFromConfig(map[string]any, *sql.DB, time.Duration) (*eelbot.Command, error) {
 	return RollCommand(), nil
 }
 

@@ -1,11 +1,11 @@
 package commands
 
 import (
+	"bytes"
+	"context"
 	"database/sql"
-	"fmt"
-	"os"
-	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
@@ -15,15 +15,15 @@ func init() {
 	commands["eel"] = imageFromConfig
 }
 
-func imageFromConfig(_ map[string]any, db *sql.DB) (*eelbot.Command, error) {
+func imageFromConfig(_ map[string]any, db *sql.DB, dbTimeout time.Duration) (*eelbot.Command, error) {
 	if db == nil {
 		return nil, requiresDatabaseErr("eel")
 	}
-	return ImageCommand(db), nil
+	return ImageCommand(db, dbTimeout), nil
 }
 
 // ImageCommand returns an *eelbot.Command that reads and replies with an image from the given db.
-func ImageCommand(db *sql.DB) *eelbot.Command {
+func ImageCommand(db *sql.DB, dbTimeout time.Duration) *eelbot.Command {
 	return &eelbot.Command{
 		MinArgs: 1,
 		MaxArgs: 1,
@@ -38,27 +38,23 @@ Examples:
 `,
 		Eval: func(s eelbot.Session, m *discordgo.MessageCreate, args []string) error {
 			var (
-				query string
-				path  string
+				row    *sql.Row
+				cancel context.CancelFunc
+				name   string
+				file   []byte
 			)
 			if args[0] == "me" {
-				query = "SELECT path FROM images ORDER BY RANDOM() LIMIT 1;"
+				row, cancel = queryRow(db, dbTimeout, randRowQuery("images", []string{"name", "file"}))
 			} else if num, err := strconv.ParseUint(args[0], 10, 64); err == nil {
-				query = fmt.Sprintf("SELECT path FROM images WHERE id=%d;", num)
+				row, cancel = queryRow(db, dbTimeout, "SELECT name, file FROM images WHERE id=$1;", num)
 			} else {
 				return unknownDirectiveErr(args[0])
 			}
-			row := db.QueryRow(query)
-			if err := row.Scan(&path); err != nil {
+			defer cancel()
+			if err := row.Scan(&name, &file); err != nil {
 				return err
 			}
-			name := filepath.Base(path)
-			file, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			defer file.Close()
-			s.ChannelFileSend(m.ChannelID, name, file)
+			s.ChannelFileSend(m.ChannelID, name, bytes.NewReader(file))
 			return nil
 		},
 	}

@@ -14,7 +14,7 @@ func TestCommand(t *testing.T) {
 	bot := eelbot.New(s)
 	bot.RegisterCommand("channel", *commands.ChannelCommand())
 	bot.RegisterCommand("roll", *commands.RollCommand())
-	bot.RegisterCommand("badjoke", *commands.JokeCommand(nil, 0))
+	bot.RegisterCommand("badjoke", *commands.JokeCommand(nil, 0, 0))
 
 	c := *commands.PlayCommand()
 	c.MinArgs = -1

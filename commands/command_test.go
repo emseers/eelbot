@@ -2,9 +2,11 @@ package commands_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/emseers/eelbot"
 	"github.com/emseers/eelbot/commands"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/stretchr/testify/require"
 )
 
@@ -36,20 +38,20 @@ var (
 func TestRegister(t *testing.T) {
 	bot := eelbot.New(newTestSession())
 
-	require.ErrorContains(t, commands.Register(bot, cfg, nil), "command requires a database")
-	require.NoError(t, commands.Register(bot, cfg, db))
+	require.ErrorContains(t, commands.Register(bot, cfg, nil, 0), "command requires a database")
+	require.NoError(t, commands.Register(bot, cfg, db, time.Second))
 
 	// Should be fault tolerant with invalid keys.
 	cfg["badjoke"].(map[string]any)["delay"] = "foo"
 	cfg["channel"].(map[string]any)["enable"] = "bar"
-	require.NoError(t, commands.Register(bot, cfg, db))
+	require.NoError(t, commands.Register(bot, cfg, db, time.Second))
 
-	require.EqualError(t, commands.Register(bot, cfgJokeOnly, nil), "/badjoke command requires a database")
-	require.NoError(t, commands.Register(bot, cfgJokeOnly, db))
+	require.EqualError(t, commands.Register(bot, cfgJokeOnly, nil, 0), "/badjoke command requires a database")
+	require.NoError(t, commands.Register(bot, cfgJokeOnly, db, time.Second))
 
-	require.EqualError(t, commands.Register(bot, cfgEelOnly, nil), "/eel command requires a database")
-	require.NoError(t, commands.Register(bot, cfgEelOnly, db))
+	require.EqualError(t, commands.Register(bot, cfgEelOnly, nil, 0), "/eel command requires a database")
+	require.NoError(t, commands.Register(bot, cfgEelOnly, db, time.Second))
 
-	require.EqualError(t, commands.Register(bot, cfgTauntOnly, nil), "/taunt command requires a database")
-	require.NoError(t, commands.Register(bot, cfgTauntOnly, db))
+	require.EqualError(t, commands.Register(bot, cfgTauntOnly, nil, 0), "/taunt command requires a database")
+	require.NoError(t, commands.Register(bot, cfgTauntOnly, db, time.Second))
 }

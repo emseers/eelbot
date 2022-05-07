@@ -3,6 +3,7 @@ package commands
 import (
 	"database/sql"
 	"math/rand"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
@@ -12,7 +13,7 @@ func init() {
 	commands["flip"] = flipFromConfig
 }
 
-func flipFromConfig(map[string]any, *sql.DB) (*eelbot.Command, error) {
+func flipFromConfig(map[string]any, *sql.DB, time.Duration) (*eelbot.Command, error) {
 	return FlipCommand(), nil
 }
 

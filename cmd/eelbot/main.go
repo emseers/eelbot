@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"math/rand"
+	"net/url"
 	"os"
 	"os/signal"
 	"path"
@@ -16,9 +17,20 @@ import (
 	"github.com/emseers/eelbot"
 	"github.com/emseers/eelbot/commands"
 	"github.com/emseers/eelbot/replies"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"gopkg.in/yaml.v3"
 )
+
+func mustDo(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func must[val any](v val, err error) val {
+	mustDo(err)
+	return v
+}
 
 var (
 	configFile string
@@ -54,28 +66,17 @@ func main() {
 		}
 	}
 
-	s, err := eelbot.NewSession(token)
-	if err != nil {
-		panic(err)
-	}
+	s := must(eelbot.NewSession(token))
 	bot := eelbot.New(s)
-
-	var config []byte
-	if config, err = os.ReadFile(configFile); err != nil {
-		panic(err)
-	}
+	config := must(os.ReadFile(configFile))
 
 	var opts map[string]any
 	switch strings.ToLower(path.Ext(configFile)) {
 	case ".json":
-		if err = json.Unmarshal(config, &opts); err != nil {
-			panic(err)
-		}
+		mustDo(json.Unmarshal(config, &opts))
 	case ".yml", ".yaml":
 		yOpts := map[any]any{}
-		if err = yaml.Unmarshal(config, &yOpts); err != nil {
-			panic(err)
-		}
+		mustDo(yaml.Unmarshal(config, &yOpts))
 
 		// Unlike json, yaml allows for non-string keys. Therefore, convert the map[any]any to a map[string]any to be
 		// json compatible.
@@ -83,38 +84,34 @@ func main() {
 
 		// Since the yaml and json packages unmarshal numeric types differently, stick to the json way (always float64)
 		// by marshalling to json and unmarshalling back.
-		if config, err = json.Marshal(opts); err != nil {
-			panic(err)
-		}
-		if err = json.Unmarshal(config, &opts); err != nil {
-			panic(err)
-		}
+		config = must(json.Marshal(opts))
+		mustDo(json.Unmarshal(config, &opts))
 	}
 
-	var db *sql.DB
+	var (
+		db        *sql.DB
+		dbTimeout = 5 * time.Second
+	)
+
 	if dbOpts, ok := opts["database"].(map[string]any); ok {
-		if dbName, ok2 := dbOpts["name"].(string); ok2 {
-			if db, err = sql.Open("sqlite3", dbName); err != nil {
-				panic(err)
-			}
+		db = must(sql.Open("pgx", connectionString(dbOpts)))
+		defer func() { mustDo(db.Close()) }()
+
+		if timeoutSecs, ok2 := opts["timeout"].(float64); ok2 {
+			dbTimeout = time.Second * time.Duration(timeoutSecs)
 		}
 	}
 
 	if cmdOpts, ok := opts["commands"].(map[string]any); ok {
-		if err = commands.Register(bot, cmdOpts, db); err != nil {
-			panic(err)
-		}
+		mustDo(commands.Register(bot, cmdOpts, db, dbTimeout))
 	}
 
 	if replyOpts, ok := opts["replies"].(map[string]any); ok {
-		if err = replies.Register(bot, replyOpts); err != nil {
-			panic(err)
-		}
+		mustDo(replies.Register(bot, replyOpts))
 	}
 
-	if err = bot.Start(); err != nil {
-		panic(err)
-	}
+	mustDo(bot.Start())
+	defer func() { mustDo(bot.Stop()) }()
 
 	fmt.Println("eelbot started up successfully")
 	sc := make(chan os.Signal, 1)
@@ -123,9 +120,6 @@ func main() {
 	<-sc
 	fmt.Println()
 	fmt.Println("goodbye")
-	if err = bot.Stop(); err != nil {
-		panic(err)
-	}
 }
 
 // Converts a map[any]any to a map[string]any.
@@ -156,4 +150,41 @@ func toStrKeys(a any) any {
 	default:
 		return ta
 	}
+}
+
+// Gets a string param from opts by checking if there exists a key for the prefix itself, <prefix>_env or <prefix>_file
+// (in that order) and reading the value appropriately.
+func getParam(opts map[string]any, prefix string) (param string) {
+	param, _ = opts[prefix].(string)
+	param = strings.TrimSpace(param)
+	if param == "" {
+		if paramEnv, _ := opts[prefix+"_env"].(string); paramEnv != "" {
+			param, _ = os.LookupEnv(paramEnv)
+			param = strings.TrimSpace(param)
+		}
+	}
+	if param == "" {
+		if paramFile, _ := opts[prefix+"_file"].(string); paramFile != "" {
+			paramBytes := must(os.ReadFile(paramFile))
+			param = strings.TrimSpace(string(paramBytes))
+		}
+	}
+	return
+}
+
+// Creates a database connection string based on the given opts.
+func connectionString(opts map[string]any) string {
+	u := &url.URL{Scheme: "postgresql"}
+	u.Host = getParam(opts, "host")
+	u.Path = getParam(opts, "database")
+	username := getParam(opts, "username")
+	password := getParam(opts, "password")
+	if username != "" {
+		if password != "" {
+			u.User = url.UserPassword(username, password)
+		} else {
+			u.User = url.User(username)
+		}
+	}
+	return u.String()
 }

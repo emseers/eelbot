@@ -1,8 +1,8 @@
 package commands
 
 import (
+	"context"
 	"database/sql"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -14,7 +14,7 @@ func init() {
 	commands["badjoke"] = badjokeFromConfig
 }
 
-func badjokeFromConfig(opts map[string]any, db *sql.DB) (*eelbot.Command, error) {
+func badjokeFromConfig(opts map[string]any, db *sql.DB, dbTimeout time.Duration) (*eelbot.Command, error) {
 	if db == nil {
 		return nil, requiresDatabaseErr("badjoke")
 	}
@@ -22,12 +22,12 @@ func badjokeFromConfig(opts map[string]any, db *sql.DB) (*eelbot.Command, error)
 	if !ok {
 		delay = 3
 	}
-	return JokeCommand(db, time.Second*time.Duration(delay)), nil
+	return JokeCommand(db, dbTimeout, time.Second*time.Duration(delay)), nil
 }
 
 // JokeCommand returns an *eelbot.Command that reads and replies with a joke from the given db. Two line jokes use the
 // given delay between replies.
-func JokeCommand(db *sql.DB, delay time.Duration) *eelbot.Command {
+func JokeCommand(db *sql.DB, dbTimeout, delay time.Duration) *eelbot.Command {
 	return &eelbot.Command{
 		MinArgs: 1,
 		MaxArgs: 1,
@@ -42,18 +42,19 @@ Examples:
 `,
 		Eval: func(s eelbot.Session, m *discordgo.MessageCreate, args []string) error {
 			var (
-				query string
-				line1 string
-				line2 sql.NullString
+				row    *sql.Row
+				cancel context.CancelFunc
+				line1  string
+				line2  sql.NullString
 			)
 			if args[0] == "me" {
-				query = "SELECT text, punchline FROM jokes ORDER BY RANDOM() LIMIT 1;"
+				row, cancel = queryRow(db, dbTimeout, randRowQuery("jokes", []string{"text", "punchline"}))
 			} else if num, err := strconv.ParseUint(args[0], 10, 64); err == nil {
-				query = fmt.Sprintf("SELECT text, punchline FROM jokes WHERE id=%d;", num)
+				row, cancel = queryRow(db, dbTimeout, "SELECT text, punchline FROM jokes WHERE id=$1;", num)
 			} else {
 				return unknownDirectiveErr(args[0])
 			}
-			row := db.QueryRow(query)
+			defer cancel()
 			if err := row.Scan(&line1, &line2); err != nil {
 				return err
 			}
