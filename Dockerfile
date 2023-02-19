@@ -1,4 +1,4 @@
-FROM golang:1.18-alpine3.15 AS build-env
+FROM golang:1.20-alpine3.17 AS build-env
 
 RUN apk add --no-cache git mercurial build-base
 

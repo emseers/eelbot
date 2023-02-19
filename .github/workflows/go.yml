@@ -8,7 +8,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.18
+          go-version: 1.20
       - name: Check out code
         uses: actions/checkout@v1
       - name: Lint
@@ -18,10 +18,10 @@ jobs:
   test:
     name: Test and Build
     runs-on: ubuntu-latest
-    container: golang:1.18-bullseye
+    container: golang:1.20-bullseye
     services:
       postgres:
-        image: postgres:14.2
+        image: postgres:15.2
         env:
           POSTGRES_USER: eelbot
           POSTGRES_PASSWORD: testpassword
@@ -42,4 +42,4 @@ jobs:
           go tool cover -func=coverage.out
       - name: Build
         run: |
-          go build -o ./bin/ ./cmd/...
+          go build -buildvcs=false -o ./bin/ ./cmd/...

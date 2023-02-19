@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	postgresqlImage    = "docker.io/library/postgres:14.2"
+	postgresqlImage    = "docker.io/library/postgres:15.2"
 	postgresqlPort     = "5432"
 	postgresqlUser     = "eelbot"
 	postgresqlPassword = "testpassword"
@@ -52,7 +52,7 @@ func StartPostgreSQL() (uri string, close CloseFunc, err error) {
 	}
 	_ = reader.Close()
 
-	var instance container.ContainerCreateCreatedBody
+	var instance container.CreateResponse
 	instance, err = cli.ContainerCreate(
 		ctx,
 		&container.Config{
@@ -81,7 +81,7 @@ func StartPostgreSQL() (uri string, close CloseFunc, err error) {
 
 	var details types.ContainerJSON
 	if details, err = cli.ContainerInspect(ctx, instance.ID); err != nil {
-		_ = cli.ContainerStop(ctx, instance.ID, nil)
+		_ = cli.ContainerStop(ctx, instance.ID, container.StopOptions{})
 		return
 	}
 
@@ -93,12 +93,12 @@ func StartPostgreSQL() (uri string, close CloseFunc, err error) {
 	}).String()
 
 	if err = waitForPostgresql(uri); err != nil {
-		_ = cli.ContainerStop(ctx, instance.ID, nil)
+		_ = cli.ContainerStop(ctx, instance.ID, container.StopOptions{})
 		return
 	}
 
 	close = func() {
-		_ = cli.ContainerStop(ctx, instance.ID, nil)
+		_ = cli.ContainerStop(ctx, instance.ID, container.StopOptions{})
 	}
 	return
 }

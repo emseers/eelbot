@@ -104,9 +104,10 @@ func TestMain(m *testing.M) {
 }
 
 // Creates a Message with the provided arguments.
-//  0: Content
-//  1: ChannelID
-//  2: MessageID
+//
+//	0: Content
+//	1: ChannelID
+//	2: MessageID
 func newMsg(args ...string) *discordgo.Message {
 	m := new(discordgo.Message)
 	if len(args) > 0 {
@@ -145,11 +146,12 @@ func (s *testsession) AddHandler(any) func() {
 	return func() {}
 }
 
-func (s *testsession) ChannelTyping(channelID string) (err error) {
+func (s *testsession) ChannelTyping(channelID string, options ...discordgo.RequestOption) (err error) {
 	return nil
 }
 
-func (s *testsession) ChannelMessageSend(channelID, content string) (*discordgo.Message, error) {
+func (s *testsession) ChannelMessageSend(channelID, content string,
+	options ...discordgo.RequestOption) (*discordgo.Message, error) {
 	b, ok := s.messages[channelID]
 	if !ok {
 		b = new(strings.Builder)
@@ -161,7 +163,8 @@ func (s *testsession) ChannelMessageSend(channelID, content string) (*discordgo.
 	return newMsg(content, channelID, strconv.Itoa(s.counter)), nil
 }
 
-func (s *testsession) ChannelFileSend(channelID, name string, r io.Reader) (*discordgo.Message, error) {
+func (s *testsession) ChannelFileSend(channelID, name string, r io.Reader,
+	options ...discordgo.RequestOption) (*discordgo.Message, error) {
 	b, ok := s.files[channelID]
 	if !ok {
 		b = make(map[string][]byte)
@@ -186,57 +189,62 @@ func (s *testsession) UpdateListeningStatus(name string) error {
 	return nil
 }
 
-func (s *testsession) ChannelMessageDelete(channelID, messageID string) error {
+func (s *testsession) ChannelMessageDelete(channelID, messageID string, options ...discordgo.RequestOption) error {
 	return nil
 }
 
 // The following functions exist for the purpose of satisfying the eelbot.Session interface.
 
-func (s *testsession) Channel(string) (*discordgo.Channel, error) {
+func (s *testsession) Channel(string, ...discordgo.RequestOption) (*discordgo.Channel, error) {
 	panic("Channel not implemented")
 }
 
-func (s *testsession) ChannelMessage(string, string) (*discordgo.Message, error) {
+func (s *testsession) ChannelMessage(string, string, ...discordgo.RequestOption) (*discordgo.Message, error) {
 	panic("ChannelMessage not implemented")
 }
 
-func (s *testsession) ChannelMessages(string, int, string, string, string) ([]*discordgo.Message, error) {
+func (s *testsession) ChannelMessages(string, int, string, string, string,
+	...discordgo.RequestOption) ([]*discordgo.Message, error) {
 	panic("ChannelMessages not implemented")
 }
 
-func (s *testsession) ChannelMessagesPinned(string) ([]*discordgo.Message, error) {
+func (s *testsession) ChannelMessagesPinned(string, ...discordgo.RequestOption) ([]*discordgo.Message, error) {
 	panic("ChannelMessagesPinned not implemented")
 }
 
-func (s *testsession) ChannelMessageSendEmbeds(string, []*discordgo.MessageEmbed) (*discordgo.Message, error) {
+func (s *testsession) ChannelMessageSendEmbeds(string, []*discordgo.MessageEmbed,
+	...discordgo.RequestOption) (*discordgo.Message, error) {
 	panic("ChannelMessageSendEmbeds not implemented")
 }
 
-func (s *testsession) ChannelMessageSendTTS(string, string) (*discordgo.Message, error) {
+func (s *testsession) ChannelMessageSendTTS(string, string, ...discordgo.RequestOption) (*discordgo.Message, error) {
 	panic("ChannelMessageSendTTS not implemented")
 }
 
-func (s *testsession) ChannelFileSendWithMessage(string, string, string, io.Reader) (*discordgo.Message, error) {
+func (s *testsession) ChannelFileSendWithMessage(string, string, string, io.Reader,
+	...discordgo.RequestOption) (*discordgo.Message, error) {
 	panic("ChannelFileSendWithMessage not implemented")
 }
 
-func (s *testsession) ChannelMessageEdit(string, string, string) (*discordgo.Message, error) {
+func (s *testsession) ChannelMessageEdit(string, string, string,
+	...discordgo.RequestOption) (*discordgo.Message, error) {
 	panic("ChannelMessageEdit not implemented")
 }
 
-func (s *testsession) ChannelMessageEditEmbeds(string, string, []*discordgo.MessageEmbed) (*discordgo.Message, error) {
+func (s *testsession) ChannelMessageEditEmbeds(string, string, []*discordgo.MessageEmbed,
+	...discordgo.RequestOption) (*discordgo.Message, error) {
 	panic("ChannelMessageEditEmbeds not implemented")
 }
 
-func (s *testsession) ChannelMessagesBulkDelete(string, []string) error {
+func (s *testsession) ChannelMessagesBulkDelete(string, []string, ...discordgo.RequestOption) error {
 	panic("ChannelMessagesBulkDelete not implemented")
 }
 
-func (s *testsession) ChannelMessagePin(string, string) error {
+func (s *testsession) ChannelMessagePin(string, string, ...discordgo.RequestOption) error {
 	panic("ChannelMessagePin not implemented")
 }
 
-func (s *testsession) ChannelMessageUnpin(string, string) error {
+func (s *testsession) ChannelMessageUnpin(string, string, ...discordgo.RequestOption) error {
 	panic("ChannelMessageUnpin not implemented")
 }
 

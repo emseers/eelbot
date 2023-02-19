@@ -3,7 +3,6 @@ package commands
 import (
 	"database/sql"
 	"fmt"
-	"math/rand"
 	"strconv"
 	"time"
 
@@ -48,7 +47,7 @@ func RollCommand() *eelbot.Command {
 				lower, upper = upper, lower
 			}
 			upper++
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprint(rand.Int63n(upper-lower)+lower))
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprint(Rand.Int63n(upper-lower)+lower))
 			return nil
 		},
 	}

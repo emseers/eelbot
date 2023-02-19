@@ -12,7 +12,7 @@ features include:
 
 ## Setup
 
-Eelbot requires PostgreSQL 14.2 or later (earlier versions may work, but is
+Eelbot requires PostgreSQL 15.2 or later (earlier versions may work, but is
 untested). The schema definition is in the [initdb](initdb/) directory. If using
 [Docker](https://www.docker.com/), you should be able to use it as a volume
 mount for the [initialization of the schema](https://github.com/docker-library/docs/tree/master/postgres#initialization-scripts).
@@ -21,7 +21,7 @@ prep/modify the database. Modifying the database directly is not recommended.
 
 ## Build
 
-Install [golang](https://golang.org/) 1.18 or later. Clone the project and build
+Install [golang](https://golang.org/) 1.20 or later. Clone the project and build
 with:
 
 ```

@@ -10,26 +10,31 @@ import (
 type Session interface {
 	AddHandler(handler any) func()
 
-	Channel(channelID string) (*discordgo.Channel, error)
-	ChannelMessage(channelID, messageID string) (*discordgo.Message, error)
-	ChannelMessages(channelID string, limit int, beforeID, afterID, aroundID string) ([]*discordgo.Message, error)
-	ChannelMessagesPinned(channelID string) ([]*discordgo.Message, error)
+	Channel(channelID string, options ...discordgo.RequestOption) (*discordgo.Channel, error)
+	ChannelMessage(channelID, messageID string, options ...discordgo.RequestOption) (*discordgo.Message, error)
+	ChannelMessages(channelID string, limit int, beforeID, afterID, aroundID string,
+		options ...discordgo.RequestOption) ([]*discordgo.Message, error)
+	ChannelMessagesPinned(channelID string, options ...discordgo.RequestOption) ([]*discordgo.Message, error)
 
-	ChannelTyping(channelID string) (err error)
-	ChannelMessageSend(channelID, content string) (*discordgo.Message, error)
-	ChannelMessageSendEmbeds(channelID string, embeds []*discordgo.MessageEmbed) (*discordgo.Message, error)
-	ChannelMessageSendTTS(channelID, content string) (*discordgo.Message, error)
-	ChannelFileSend(channelID, name string, r io.Reader) (*discordgo.Message, error)
-	ChannelFileSendWithMessage(channelID, content, name string, r io.Reader) (*discordgo.Message, error)
+	ChannelTyping(channelID string, options ...discordgo.RequestOption) (err error)
+	ChannelMessageSend(channelID, content string, options ...discordgo.RequestOption) (*discordgo.Message, error)
+	ChannelMessageSendEmbeds(channelID string, embeds []*discordgo.MessageEmbed,
+		options ...discordgo.RequestOption) (*discordgo.Message, error)
+	ChannelMessageSendTTS(channelID, content string, options ...discordgo.RequestOption) (*discordgo.Message, error)
+	ChannelFileSend(channelID, name string, r io.Reader, options ...discordgo.RequestOption) (*discordgo.Message, error)
+	ChannelFileSendWithMessage(channelID, content, name string, r io.Reader,
+		options ...discordgo.RequestOption) (*discordgo.Message, error)
 
-	ChannelMessageEdit(channelID, messageID, content string) (*discordgo.Message, error)
-	ChannelMessageEditEmbeds(channelID, messageID string, embeds []*discordgo.MessageEmbed) (*discordgo.Message, error)
+	ChannelMessageEdit(channelID, messageID, content string,
+		options ...discordgo.RequestOption) (*discordgo.Message, error)
+	ChannelMessageEditEmbeds(channelID, messageID string, embeds []*discordgo.MessageEmbed,
+		options ...discordgo.RequestOption) (*discordgo.Message, error)
 
-	ChannelMessageDelete(channelID, messageID string) error
-	ChannelMessagesBulkDelete(channelID string, messages []string) error
+	ChannelMessageDelete(channelID, messageID string, options ...discordgo.RequestOption) error
+	ChannelMessagesBulkDelete(channelID string, messages []string, options ...discordgo.RequestOption) error
 
-	ChannelMessagePin(channelID, messageID string) error
-	ChannelMessageUnpin(channelID, messageID string) error
+	ChannelMessagePin(channelID, messageID string, options ...discordgo.RequestOption) error
+	ChannelMessageUnpin(channelID, messageID string, options ...discordgo.RequestOption) error
 
 	UpdateGameStatus(idle int, name string) error
 	UpdateStreamingStatus(idle int, name, url string) error
