@@ -2,7 +2,6 @@ package commands
 
 import (
 	"database/sql"
-	"math/rand"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -26,9 +25,9 @@ func FlipCommand() *eelbot.Command {
 		Eval: func(s eelbot.Session, m *discordgo.MessageCreate, _ []string) error {
 			var result string
 			switch {
-			case rand.Intn(6000) == 0:
+			case Rand.Intn(6000) == 0:
 				result = "Landed on edge"
-			case rand.Intn(2) == 0:
+			case Rand.Intn(2) == 0:
 				result = "Heads"
 			default:
 				result = "Tails"

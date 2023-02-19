@@ -1,3 +1,4 @@
+// Package main is the entrypoint of the application.
 package main
 
 import (
@@ -5,7 +6,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"math/rand"
 	"net/url"
 	"os"
 	"os/signal"
@@ -40,8 +40,6 @@ var (
 func init() {
 	flag.StringVar(&configFile, "c", configFile, "Config file")
 	flag.StringVar(&token, "t", token, "Bot token")
-
-	rand.Seed(time.Now().UnixNano())
 }
 
 func main() {

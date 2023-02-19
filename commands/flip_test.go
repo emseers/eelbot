@@ -12,7 +12,7 @@ import (
 func TestFlip(t *testing.T) {
 	s := newTestSession()
 	f := commands.FlipCommand().Eval
-	rand.Seed(42)
+	commands.Rand = rand.New(rand.NewSource((42)))
 
 	const numFlips = 100000
 	for i := 0; i < numFlips; i++ {

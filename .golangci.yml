@@ -33,7 +33,6 @@ linters-settings:
 linters:
   disable-all: true
   enable:
-    - deadcode
     - errcheck
     - goconst
     - gocritic
@@ -47,13 +46,11 @@ linters:
     - misspell
     - revive
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
   fast: false
 
 issues:

@@ -13,7 +13,7 @@ import (
 func TestRoll(t *testing.T) {
 	s := newTestSession()
 	f := commands.RollCommand().Eval
-	rand.Seed(42)
+	commands.Rand = rand.New(rand.NewSource((42)))
 
 	const numRolls = 100000
 	for i := 0; i < numRolls; i++ {

@@ -1,7 +1,6 @@
 package replies
 
 import (
-	"math/rand"
 	"regexp"
 	"strings"
 )
@@ -11,11 +10,11 @@ var (
 )
 
 func roll(percent int) bool {
-	return rand.Intn(100) < percent
+	return Rand.Intn(100) < percent
 }
 
 func randElem(s []string) string {
-	return s[rand.Intn(len(s))]
+	return s[Rand.Intn(len(s))]
 }
 
 func toAlphabetsOnly(s string) string {

@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"math/rand"
 	"strings"
 	"time"
 
@@ -13,21 +14,27 @@ import (
 
 type commandFromConfigFunc func(map[string]any, *sql.DB, time.Duration) (*eelbot.Command, error)
 
-var commands = map[string]commandFromConfigFunc{}
+var (
+	commands = map[string]commandFromConfigFunc{}
+
+	// Rand is the random number source that's used by some commands. It is public for the purposes of testing.
+	Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
+)
 
 // Register eelbot commands based on the given opts. The expected format for the opts is a key for each command name
 // with the value being a map[string]any for the options of the command. The value must have the "enable" key with the
 // value being a bool, along with any other command specific options. An example config is as follows (JSONified):
-//  {
-//    "command_a": {
-//      "enable": true,
-//      "command_a_opt_1": "foo",
-//      "command_a_opt_2": 2
-//    },
-//    "command_b": {
-//      "enable": false
-//    }
-//  }
+//
+//	{
+//	  "command_a": {
+//	    "enable": true,
+//	    "command_a_opt_1": "foo",
+//	    "command_a_opt_2": 2
+//	  },
+//	  "command_b": {
+//	    "enable": false
+//	  }
+//	}
 func Register(bot *eelbot.Bot, opts map[string]any, db *sql.DB, dbTimeout time.Duration) error {
 	for cmd, f := range commands {
 		if cmdOpts, ok := opts[cmd].(map[string]any); ok {
