@@ -1,16 +1,100 @@
 package replies_test
 
 import (
+	"bytes"
+	"database/sql"
+	"fmt"
 	"io"
+	"io/fs"
+	"log"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"testing"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/emseers/eelbot/helpers"
 )
 
 const (
-	testChannelID = "123456789"
+	initdbScriptsDir     = "../initdb"
+	incorrectFormatTable = "incorrect_format"
+	sampleTable          = "sample"
+	testChannelID        = "123456789"
 )
+
+var (
+	db *sql.DB
+)
+
+func setup(url string) (err error) {
+	db, err = sql.Open("pgx", url)
+	if err != nil {
+		return
+	}
+
+	// Load initdb scripts and run them to setup the schema.
+	init := new(bytes.Buffer)
+	err = filepath.WalkDir(initdbScriptsDir, func(path string, f fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if f.IsDir() {
+			return nil
+		}
+		var b []byte
+		if b, err = os.ReadFile(path); err != nil {
+			return err
+		}
+		init.Write(b)
+		init.WriteByte('\n')
+		return nil
+	})
+	if err != nil {
+		return
+	}
+
+	_, err = db.Exec(init.String())
+	if err != nil {
+		return
+	}
+
+	_, err = db.Exec(fmt.Sprintf("CREATE TABLE reply.%s (eye_dee integer PRIMARY KEY, file bytea NOT NULL);",
+		incorrectFormatTable))
+	if err != nil {
+		return
+	}
+
+	_, err = db.Exec(fmt.Sprintf("CREATE TABLE reply.%s (id integer PRIMARY KEY, text text NOT NULL);", sampleTable))
+	if err != nil {
+		return
+	}
+
+	_, err = db.Exec(fmt.Sprintf("INSERT INTO reply.%s (id, text) VALUES (1, $1);", sampleTable), "hi")
+	return
+}
+
+func TestMain(m *testing.M) {
+	url, close, err := helpers.StartPostgreSQL()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if err = setup(url); err != nil {
+		close()
+		log.Fatalln(err)
+	}
+
+	code := m.Run()
+
+	if db != nil {
+		_ = db.Close()
+	}
+	close()
+
+	os.Exit(code)
+}
 
 // Creates a Message with the provided arguments.
 //

@@ -12,7 +12,7 @@ RUN go mod download
 COPY . .
 RUN mkdir bin && go build -o ./bin/ ./cmd/...
 
-FROM alpine:3.15
+FROM alpine:3.17
 
 RUN apk update && apk add --no-cache ca-certificates
 

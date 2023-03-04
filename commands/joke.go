@@ -18,11 +18,11 @@ func badjokeFromConfig(opts map[string]any, db *sql.DB, dbTimeout time.Duration)
 	if db == nil {
 		return nil, requiresDatabaseErr("badjoke")
 	}
-	delay, ok := opts["delay"].(float64)
-	if !ok {
-		delay = 3
+	delay, err := getDuration(opts["delay"], 3*time.Second)
+	if err != nil {
+		return nil, err
 	}
-	return JokeCommand(db, dbTimeout, time.Second*time.Duration(delay)), nil
+	return JokeCommand(db, dbTimeout, delay), nil
 }
 
 // JokeCommand returns an *eelbot.Command that reads and replies with a joke from the given db. Two line jokes use the

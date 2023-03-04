@@ -50,6 +50,42 @@ func Register(bot *eelbot.Bot, opts map[string]any, db *sql.DB, dbTimeout time.D
 	return nil
 }
 
+func getDuration(v any, def time.Duration) (dur time.Duration, err error) {
+	switch d := v.(type) {
+	case int:
+		dur = time.Second * time.Duration(d)
+	case int8:
+		dur = time.Second * time.Duration(d)
+	case int16:
+		dur = time.Second * time.Duration(d)
+	case int32:
+		dur = time.Second * time.Duration(d)
+	case int64:
+		dur = time.Second * time.Duration(d)
+	case uint:
+		dur = time.Second * time.Duration(d)
+	case uint8:
+		dur = time.Second * time.Duration(d)
+	case uint16:
+		dur = time.Second * time.Duration(d)
+	case uint32:
+		dur = time.Second * time.Duration(d)
+	case uint64:
+		dur = time.Second * time.Duration(d)
+	case float32:
+		dur = time.Second * time.Duration(d)
+	case float64:
+		dur = time.Second * time.Duration(d)
+	case string:
+		dur, err = time.ParseDuration(d)
+	case time.Duration:
+		dur = d
+	default:
+		dur = def
+	}
+	return
+}
+
 func queryRow(db *sql.DB, dbTimeout time.Duration, query string, args ...any) (*sql.Row, context.CancelFunc) {
 	ctx, cancel := context.Background(), func() {}
 	if dbTimeout > 0 {
@@ -63,7 +99,7 @@ func queryRow(db *sql.DB, dbTimeout time.Duration, query string, args ...any) (*
 // ordering all rows.
 func randRowQuery(table string, cols []string) string {
 	return fmt.Sprintf(
-		"SELECT %s FROM %[2]s WHERE id=(SELECT (min(id) + trunc(random()*(max(id)-min(id)))::integer) FROM %[2]s);",
+		"SELECT %s FROM %[2]s WHERE id=(SELECT (MIN(id) + trunc(random()*(MAX(id)-MIN(id)))::integer) FROM %[2]s);",
 		strings.Join(cols, ", "),
 		table,
 	)
