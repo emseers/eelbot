@@ -60,43 +60,12 @@ commands:
     enable: true
 
 replies:
-  # Reply to all caps messages.
-  caps:
-    enable: true
-    min_len: 5 # Minimum number of characters in message to consider match (ie. avoid short acronyms).
-    percent: 17 # Percent chance to trigger reply on match.
-    min_delay: 3 # Minimum time (in seconds) to wait before replying.
-    max_delay: 6 # Maximum time (in seconds) to wait before replying.
-    timeout: 120 # Timeout (in seconds) for consequetive replies.
-
-  # Reply to hello messages.
-  hello:
-    enable: true
-    percent: 33 # Percent chance to trigger reply on match.
-    min_delay: 3 # Minimum time (in seconds) to wait before replying.
-    max_delay: 6 # Maximum time (in seconds) to wait before replying.
-    timeout: 600 # Timeout (in seconds) for consequetive replies.
-
-  # Reply to goodbye messages.
-  goodbye:
-    enable: true
-    percent: 33 # Percent chance to trigger reply on match.
-    min_delay: 3 # Minimum time (in seconds) to wait before replying.
-    max_delay: 6 # Maximum time (in seconds) to wait before replying.
-    timeout: 600 # Timeout (in seconds) for consequetive replies.
-
-  # Reply to laugh messages.
-  laugh:
-    enable: true
-    percent: 17 # Percent chance to trigger reply on match.
-    min_delay: 1 # Minimum time (in seconds) to wait before replying.
-    max_delay: 3 # Maximum time (in seconds) to wait before replying.
-    timeout: 10 # Timeout (in seconds) for consequetive replies.
-
-  # Reply to messages that only contain the questionmark character.
-  question:
-    enable: true
-    percent: 17 # Percent chance to trigger reply on match.
-    min_delay: 3 # Minimum time (in seconds) to wait before replying.
-    max_delay: 6 # Maximum time (in seconds) to wait before replying.
-    timeout: 10 # Timeout (in seconds) for consequetive replies.
+  # Add custom replies by creating a table under the `reply` schema in the database first, then adding an entry here to
+  # reference it. Check the README for more details.
+  - table_name: "myreply"
+    regexps:
+    - "a{3,6}"
+    percent: 33
+    min_delay: 3
+    max_delay: 6
+    timeout: 600

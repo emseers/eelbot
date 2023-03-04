@@ -12,7 +12,7 @@ import (
 
 var (
 	cfg = map[string]any{
-		"badjoke": map[string]any{"enable": true, "delay": float64(3)},
+		"badjoke": map[string]any{"enable": true, "delay": 3},
 		"eel":     map[string]any{"enable": true},
 		"taunt":   map[string]any{"enable": true},
 		"channel": map[string]any{"enable": true},
@@ -37,13 +37,7 @@ var (
 
 func TestRegister(t *testing.T) {
 	bot := eelbot.New(newTestSession())
-
 	require.ErrorContains(t, commands.Register(bot, cfg, nil, 0), "command requires a database")
-	require.NoError(t, commands.Register(bot, cfg, db, time.Second))
-
-	// Should be fault tolerant with invalid keys.
-	cfg["badjoke"].(map[string]any)["delay"] = "foo"
-	cfg["channel"].(map[string]any)["enable"] = "bar"
 	require.NoError(t, commands.Register(bot, cfg, db, time.Second))
 
 	require.EqualError(t, commands.Register(bot, cfgJokeOnly, nil, 0), "/badjoke command requires a database")
@@ -53,5 +47,10 @@ func TestRegister(t *testing.T) {
 	require.NoError(t, commands.Register(bot, cfgEelOnly, db, time.Second))
 
 	require.EqualError(t, commands.Register(bot, cfgTauntOnly, nil, 0), "/taunt command requires a database")
+	require.NoError(t, commands.Register(bot, cfgTauntOnly, db, time.Second))
+
+	cfgJokeOnly["badjoke"].(map[string]any)["delay"] = "foo"
+	require.ErrorContains(t, commands.Register(bot, cfgJokeOnly, db, time.Second), "invalid duration")
+	cfgTauntOnly["taunt"].(map[string]any)["enable"] = "bar" // Should treat non bool values as false.
 	require.NoError(t, commands.Register(bot, cfgTauntOnly, db, time.Second))
 }

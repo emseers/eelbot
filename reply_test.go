@@ -5,16 +5,24 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/emseers/eelbot"
-	"github.com/emseers/eelbot/replies"
 	"github.com/stretchr/testify/require"
 )
 
 func TestReply(t *testing.T) {
 	s := newTestSession()
 	bot := eelbot.New(s)
-	r := replies.LaughReply(100, 0, 0)
-	r.Timeout = 500 * time.Millisecond
+	r := &eelbot.Reply{
+		Eval: func(s eelbot.Session, m *discordgo.MessageCreate) bool {
+			if m.Content == "lol" {
+				s.ChannelMessageSend(m.ChannelID, "lol")
+				return true
+			}
+			return false
+		},
+		Timeout: 500 * time.Millisecond,
+	}
 	bot.RegisterReply(*r)
 
 	s.send(newMsg("lol", testChannelID, "", testUserID))

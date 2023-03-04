@@ -77,13 +77,8 @@ func main() {
 		mustDo(yaml.Unmarshal(config, &yOpts))
 
 		// Unlike json, yaml allows for non-string keys. Therefore, convert the map[any]any to a map[string]any to be
-		// json compatible.
+		// json compatible. Also change all numeric types to float64 to match the jsin unmarshaler.
 		opts = toStrKeys(yOpts).(map[string]any)
-
-		// Since the yaml and json packages unmarshal numeric types differently, stick to the json way (always float64)
-		// by marshalling to json and unmarshalling back.
-		config = must(json.Marshal(opts))
-		mustDo(json.Unmarshal(config, &opts))
 	}
 
 	var (
@@ -104,8 +99,8 @@ func main() {
 		mustDo(commands.Register(bot, cmdOpts, db, dbTimeout))
 	}
 
-	if replyOpts, ok := opts["replies"].(map[string]any); ok {
-		mustDo(replies.Register(bot, replyOpts))
+	if replyOpts, ok := opts["replies"].([]any); ok {
+		mustDo(replies.Register(bot, replyOpts, db, dbTimeout))
 	}
 
 	mustDo(bot.Start())
@@ -120,7 +115,7 @@ func main() {
 	fmt.Println("goodbye")
 }
 
-// Converts a map[any]any to a map[string]any.
+// Converts a map[any]any to a map[string]any and changes numeric types to float64.
 func toStrKeys(a any) any {
 	switch ta := a.(type) {
 	case map[any]any:
@@ -145,6 +140,28 @@ func toStrKeys(a any) any {
 			s[i] = toStrKeys(v)
 		}
 		return s
+	case int:
+		return float64(ta)
+	case int8:
+		return float64(ta)
+	case int16:
+		return float64(ta)
+	case int32:
+		return float64(ta)
+	case int64:
+		return float64(ta)
+	case uint:
+		return float64(ta)
+	case uint8:
+		return float64(ta)
+	case uint16:
+		return float64(ta)
+	case uint32:
+		return float64(ta)
+	case uint64:
+		return float64(ta)
+	case float32:
+		return float64(ta)
 	default:
 		return ta
 	}
